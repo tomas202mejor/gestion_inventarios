@@ -1,1 +1,1 @@
-Solo lectura
+Solo lectura ok
