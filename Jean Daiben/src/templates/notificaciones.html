@@ -6,7 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="icon" href="/Jean Daiben/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/Jean Daiben/static/style_inicio.css">
-    <title>Inicio</title>
+    <link rel="stylesheet" href="/Jean Daiben/static/style_notificaciones.css">
+    <title>Dashboard</title>
 </head>
 <body>
     <div class="menu">
@@ -28,7 +29,7 @@
         <nav class="navegacion">
             <ul>
                 <li>
-                    <a id="home" href="/Jean Daiben/src/templates/inicio.html">
+                    <a href="/Jean Daiben/src/templates/inicio.html">
                         <ion-icon name="home-outline"></ion-icon>
                         <span>Home</span>
                     </a>
@@ -52,7 +53,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/Jean Daiben/src/templates/notificaciones.html">
+                    <a id="notificaciones"  href="/Jean Daiben/src/templates/notificaciones.html">
                         <ion-icon name="notifications"></ion-icon>
                         <span>Notificaciones</span>
                     </a>
@@ -93,7 +94,20 @@
     </div>
 
     <main>
-        <h1>Contenido segun cada modulo</h1>
+        <nav class="navegacion-notificaciones">
+            <ul>
+                <li class="todas">
+                    <a href="#">
+                        <span>Todas</span>
+                    </a>
+                </li>
+                <li class="no-leidas">
+                    <a href="#">
+                        <span>No leidas</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </main>
 
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>

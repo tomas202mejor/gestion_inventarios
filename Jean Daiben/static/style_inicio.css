@@ -200,7 +200,7 @@ body{
 /*--Modo Oscuro--*/
 .barra-lateral .modo-oscuro{
     width: 100%;
-    margin-bottom: 200px;
+    margin-bottom: 130px;
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
@@ -296,14 +296,24 @@ body{
 
 /*--Main--*/
 
+#home{
+    background-color: var(--color-menu-hover);
+    color: var(--color-menu-hover-texto);
+}
+
 #dashboard{
+    background-color: var(--color-menu-hover);
+    color: var(--color-menu-hover-texto);
+}
+
+#notificaciones{
     background-color: var(--color-menu-hover);
     color: var(--color-menu-hover-texto);
 }
 
 main{
     margin-left: 250px;
-    padding: 20px;
+    padding: 0px;
     transition: margin-left 0.5s ease;
 }
 main.min-main{
