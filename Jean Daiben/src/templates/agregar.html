@@ -1,0 +1,79 @@
+<!-- src/templates/agregar.html -->
+{% extends 'layout.html' %}
+
+{% block title %}Agregar Producto{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Agregar Nuevo Producto</h4>
+            </div>
+            <div class="card-body">
+                <form id="productoForm">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre del Producto*</label>
+                        <input type="text" class="form-control" id="nombre" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="cantidad" class="form-label">Cantidad*</label>
+                        <input type="number" class="form-control" id="cantidad" min="0" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tipo" class="form-label">Tipo</label>
+                        <input type="text" class="form-control" id="tipo">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="proveedor" class="form-label">Proveedor</label>
+                        <input type="text" class="form-control" id="proveedor">
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/productos'">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Guardar Producto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productoForm = document.getElementById('productoForm');
+        
+        productoForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const producto = {
+                nombre: document.getElementById('nombre').value.trim(),
+                cantidad: parseInt(document.getElementById('cantidad').value),
+                tipo: document.getElementById('tipo').value.trim() || null,
+                proveedor: document.getElementById('proveedor').value.trim() || null
+            };
+            
+            // Validación básica
+            if (!producto.nombre || isNaN(producto.cantidad)) {
+                alert('Por favor complete los campos obligatorios correctamente');
+                return;
+            }
+            
+            axios.post('/api/productos', producto)
+                .then(response => {
+                    alert('Producto agregado correctamente');
+                    window.location.href = '/productos';
+                })
+                .catch(error => {
+                    console.error('Error al agregar producto:', error);
+                    alert('Error al agregar el producto');
+                });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,128 @@
+<!-- src/templates/editar.html -->
+{% extends 'layout.html' %}
+
+{% block title %}Editar Producto{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0">Editar Producto</h4>
+            </div>
+            <div class="card-body">
+                <div id="loadingIndicator" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+                
+                <form id="productoForm" style="display: none;">
+                    <input type="hidden" id="productoId" value="{{ producto_id }}">
+                    
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre del Producto*</label>
+                        <input type="text" class="form-control" id="nombre" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="cantidad" class="form-label">Cantidad*</label>
+                        <input type="number" class="form-control" id="cantidad" min="0" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tipo" class="form-label">Tipo</label>
+                        <input type="text" class="form-control" id="tipo">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="proveedor" class="form-label">Proveedor</label>
+                        <input type="text" class="form-control" id="proveedor">
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/productos'">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                    </div>
+                </form>
+                
+                <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;">
+                    No se pudo cargar la información del producto.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productoForm = document.getElementById('productoForm');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const errorMessage = document.getElementById('errorMessage');
+        const productoId = document.getElementById('productoId').value;
+        
+        // Cargar datos del producto
+        cargarProducto(productoId);
+        
+        productoForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const producto = {
+                nombre: document.getElementById('nombre').value.trim(),
+                cantidad: parseInt(document.getElementById('cantidad').value),
+                tipo: document.getElementById('tipo').value.trim() || null,
+                proveedor: document.getElementById('proveedor').value.trim() || null
+            };
+            
+            // Validación básica
+            if (!producto.nombre || isNaN(producto.cantidad)) {
+                alert('Por favor complete los campos obligatorios correctamente');
+                return;
+            }
+            
+            axios.put(`/api/productos/${productoId}`, producto)
+                .then(response => {
+                    alert('Producto actualizado correctamente');
+                    window.location.href = '/productos';
+                })
+                .catch(error => {
+                    console.error('Error al actualizar producto:', error);
+                    alert('Error al actualizar el producto');
+                });
+        });
+        
+        function cargarProducto(id) {
+            showLoading(true);
+            showError(false);
+            
+            axios.get(`/api/productos/${id}`)
+                .then(response => {
+                    const producto = response.data;
+                    
+                    document.getElementById('nombre').value = producto.nombre;
+                    document.getElementById('cantidad').value = producto.cantidad;
+                    document.getElementById('tipo').value = producto.tipo || '';
+                    document.getElementById('proveedor').value = producto.proveedor || '';
+                    
+                    showLoading(false);
+                    productoForm.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error al cargar producto:', error);
+                    showLoading(false);
+                    showError(true);
+                });
+        }
+        
+        function showLoading(show) {
+            loadingIndicator.style.display = show ? 'block' : 'none';
+        }
+        
+        function showError(show) {
+            errorMessage.style.display = show ? 'block' : 'none';
+        }
+    });
+</script>
+{% endblock %}

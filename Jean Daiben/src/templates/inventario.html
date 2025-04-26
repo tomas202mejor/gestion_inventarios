@@ -1,0 +1,225 @@
+<!-- src/templates/inventario.html -->
+{% extends 'layout.html' %}
+
+{% block title %}Inventario de Productos{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>Inventario de Productos</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="/productos/agregar" class="btn btn-primary">Agregar Producto</a>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <input type="text" id="searchInput" class="form-control" placeholder="Buscar productos...">
+    </div>
+    <div class="col-md-3">
+        <select id="tipoFilter" class="form-select">
+            <option value="">Todos los tipos</option>
+            <!-- Se llenará dinámicamente -->
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select id="proveedorFilter" class="form-select">
+            <option value="">Todos los proveedores</option>
+            <!-- Se llenará dinámicamente -->
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button id="btnFiltrar" class="btn btn-secondary w-100">Filtrar</button>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Cantidad</th>
+                <th>Tipo</th>
+                <th>Proveedor</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="productosTable">
+            <!-- Datos cargados por JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<div id="loadingIndicator" class="text-center py-4 d-none">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+</div>
+
+<div id="emptyMessage" class="alert alert-info text-center d-none">
+    No se encontraron productos.
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productosTable = document.getElementById('productosTable');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const emptyMessage = document.getElementById('emptyMessage');
+        const searchInput = document.getElementById('searchInput');
+        const tipoFilter = document.getElementById('tipoFilter');
+        const proveedorFilter = document.getElementById('proveedorFilter');
+        const btnFiltrar = document.getElementById('btnFiltrar');
+        
+        // Cargar productos al iniciar
+        cargarProductos();
+        
+        // Cargar opciones de filtros
+        cargarFiltros();
+        
+        // Evento para búsqueda
+        searchInput.addEventListener('input', function() {
+            filtrarProductos();
+        });
+        
+        // Evento para filtrar
+        btnFiltrar.addEventListener('click', function() {
+            filtrarProductos();
+        });
+        
+        function cargarProductos() {
+            showLoading(true);
+            
+            axios.get('/api/productos')
+                .then(response => {
+                    renderizarProductos(response.data);
+                    showLoading(false);
+                })
+                .catch(error => {
+                    console.error('Error al cargar productos:', error);
+                    showLoading(false);
+                    alert('Error al cargar los productos');
+                });
+        }
+        
+        function filtrarProductos() {
+            showLoading(true);
+            
+            const searchTerm = searchInput.value.toLowerCase();
+            const tipo = tipoFilter.value;
+            const proveedor = proveedorFilter.value;
+            
+            // Construir URL con parámetros de filtro
+            let url = '/api/productos';
+            const params = [];
+            
+            if (tipo) params.push(`tipo=${encodeURIComponent(tipo)}`);
+            if (proveedor) params.push(`proveedor=${encodeURIComponent(proveedor)}`);
+            
+            if (params.length > 0) {
+                url += '?' + params.join('&');
+            }
+            
+            axios.get(url)
+                .then(response => {
+                    // Filtrar por término de búsqueda en el cliente
+                    let filteredData = response.data;
+                    if (searchTerm) {
+                        filteredData = filteredData.filter(producto => 
+                            producto.nombre.toLowerCase().includes(searchTerm));
+                    }
+                    
+                    renderizarProductos(filteredData);
+                    showLoading(false);
+                })
+                .catch(error => {
+                    console.error('Error al filtrar productos:', error);
+                    showLoading(false);
+                    alert('Error al filtrar los productos');
+                });
+        }
+        
+        function renderizarProductos(productos) {
+            productosTable.innerHTML = '';
+            
+            if (productos.length === 0) {
+                emptyMessage.classList.remove('d-none');
+                return;
+            }
+            
+            emptyMessage.classList.add('d-none');
+            
+            productos.forEach(producto => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${producto.id}</td>
+                    <td>${producto.nombre}</td>
+                    <td>${producto.cantidad}</td>
+                    <td>${producto.tipo || '-'}</td>
+                    <td>${producto.proveedor || '-'}</td>
+                    <td>
+                        <a href="/productos/editar/${producto.id}" class="btn btn-sm btn-warning">Editar</a>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${producto.id})">Eliminar</button>
+                    </td>
+                `;
+                
+                productosTable.appendChild(row);
+            });
+        }
+        
+        function cargarFiltros() {
+            // Obtener productos para extraer tipos y proveedores únicos
+            axios.get('/api/productos')
+                .then(response => {
+                    const tipos = [...new Set(response.data.map(p => p.tipo).filter(Boolean))];
+                    const proveedores = [...new Set(response.data.map(p => p.proveedor).filter(Boolean))];
+                    
+                    // Llenar select de tipos
+                    tipos.forEach(tipo => {
+                        const option = document.createElement('option');
+                        option.value = tipo;
+                        option.textContent = tipo;
+                        tipoFilter.appendChild(option);
+                    });
+                    
+                    // Llenar select de proveedores
+                    proveedores.forEach(proveedor => {
+                        const option = document.createElement('option');
+                        option.value = proveedor;
+                        option.textContent = proveedor;
+                        proveedorFilter.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al cargar filtros:', error);
+                });
+        }
+        
+        function showLoading(show) {
+            if (show) {
+                loadingIndicator.classList.remove('d-none');
+            } else {
+                loadingIndicator.classList.add('d-none');
+            }
+        }
+    });
+    
+    function eliminarProducto(id) {
+        if (confirm(`¿Estás seguro de que deseas eliminar el producto con ID ${id}?`)) {
+            axios.delete(`/api/productos/${id}`)
+                .then(response => {
+                    alert('Producto eliminado correctamente');
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error al eliminar producto:', error);
+                    alert('Error al eliminar el producto');
+                });
+        }
+    }
+</script>
+{% endblock %}
