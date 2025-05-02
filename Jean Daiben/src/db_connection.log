@@ -1,0 +1,267 @@
+2025-05-01 14:46:09,571 - werkzeug - WARNING -  * Debugger is active!
+2025-05-01 14:46:09,578 - werkzeug - INFO -  * Debugger PIN: 107-964-847
+2025-05-01 14:46:18,174 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:18] "GET /productos HTTP/1.1" 200 -
+2025-05-01 14:46:18,205 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:18] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 14:46:18,206 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:18] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 14:46:18,207 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:18] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 14:46:18,218 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:18] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 14:46:18,488 - mysql.connector - INFO - package: mysql.connector.plugins
+2025-05-01 14:46:18,488 - mysql.connector - INFO - package: mysql.connector.plugins
+2025-05-01 14:46:18,488 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2025-05-01 14:46:18,489 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2025-05-01 14:46:18,489 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2025-05-01 14:46:18,489 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2025-05-01 14:46:18,493 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:46:18,493 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:46:18,495 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:18] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 14:46:18,501 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:18] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 14:46:18,551 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:46:18,554 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:18] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 14:46:22,871 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:46:22,882 - api_productos - WARNING - Error al eliminar producto 6 por restricción de clave foránea: 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`jeandeiben`.`detalleventas`, CONSTRAINT `detalleventas_ibfk_2` FOREIGN KEY (`ProductoID`) REFERENCES `productos` (`ProductoID`))
+2025-05-01 14:46:22,883 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:22] "[31m[1mDELETE /api/productos/6 HTTP/1.1[0m" 400 -
+2025-05-01 14:46:26,638 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:26] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 14:46:26,640 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:26] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 14:46:56,674 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:46:56,682 - api_productos - WARNING - Error al eliminar producto 6 por restricción de clave foránea: 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`jeandeiben`.`detalleventas`, CONSTRAINT `detalleventas_ibfk_2` FOREIGN KEY (`ProductoID`) REFERENCES `productos` (`ProductoID`))
+2025-05-01 14:46:56,684 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:46:56] "[31m[1mDELETE /api/productos/6 HTTP/1.1[0m" 400 -
+2025-05-01 14:50:04,682 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:50:04,690 - api_productos - WARNING - Error al eliminar producto 6 por restricción de clave foránea: 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`jeandeiben`.`detalleventas`, CONSTRAINT `detalleventas_ibfk_2` FOREIGN KEY (`ProductoID`) REFERENCES `productos` (`ProductoID`))
+2025-05-01 14:50:04,692 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:50:04] "[31m[1mDELETE /api/productos/6 HTTP/1.1[0m" 400 -
+2025-05-01 14:57:33,778 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:33] "GET /productos HTTP/1.1" 200 -
+2025-05-01 14:57:33,851 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:33] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 14:57:33,860 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:33] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 14:57:33,865 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:33] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 14:57:33,867 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:33] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 14:57:34,224 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:57:34,227 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:57:34,239 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:34] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 14:57:34,239 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:34] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 14:57:34,339 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:57:34,349 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:34] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 14:57:49,687 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:49] "GET /productos HTTP/1.1" 200 -
+2025-05-01 14:57:49,736 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:49] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 14:57:49,738 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:49] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 14:57:49,743 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:49] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 14:57:49,748 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:49] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 14:57:50,080 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:57:50,082 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:50] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 14:57:50,085 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:57:50,097 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:50] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 14:57:50,160 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:57:50,163 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:57:50] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 14:58:21,133 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:58:21] "GET /productos HTTP/1.1" 200 -
+2025-05-01 14:58:21,181 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:58:21] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 14:58:21,184 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:58:21] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 14:58:21,188 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:58:21] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 14:58:21,194 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:58:21] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 14:58:21,518 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:58:21,518 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:58:21,523 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:58:21] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 14:58:21,527 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:58:21] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 14:58:21,609 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 14:58:21,611 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 14:58:21] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:01:24,458 - werkzeug - INFO -  * Detected change in 'C:\\Users\\harri\\Downloads\\ing software\\gestion_inventarios\\Jean Daiben\\src\\routes\\api_productos.py', reloading
+2025-05-01 15:01:27,960 - werkzeug - WARNING -  * Debugger is active!
+2025-05-01 15:01:27,992 - werkzeug - INFO -  * Debugger PIN: 107-964-847
+2025-05-01 15:01:28,490 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:28] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:01:28,525 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:28] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:01:28,527 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:28] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:01:28,528 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:28] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:01:28,537 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:28] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:01:29,010 - mysql.connector - INFO - package: mysql.connector.plugins
+2025-05-01 15:01:29,012 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2025-05-01 15:01:29,012 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2025-05-01 15:01:29,015 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:01:29,015 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:01:29,018 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:29] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:01:29,024 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:29] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:01:29,092 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:01:29,094 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:29] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:01:36,560 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:36] "[31m[1mDELETE /api/productos/6 HTTP/1.1[0m" 405 -
+2025-05-01 15:01:41,937 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:41] "[31m[1mDELETE /api/productos/5 HTTP/1.1[0m" 405 -
+2025-05-01 15:01:42,989 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:42] "GET /productos/editar/5 HTTP/1.1" 200 -
+2025-05-01 15:01:43,027 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:43] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:01:43,030 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:43] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:01:43,036 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:43] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:01:43,038 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:43] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:01:43,212 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:01:43,215 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:43] "GET /api/productos/5 HTTP/1.1" 200 -
+2025-05-01 15:01:43,220 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:01:43,225 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:43] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:01:46,787 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:01:46,807 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:46] "PUT /api/productos/5 HTTP/1.1" 200 -
+2025-05-01 15:01:47,923 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:47] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:01:47,976 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:47] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:01:47,980 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:47] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:01:47,983 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:47] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:01:47,988 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:47] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:01:48,149 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:01:48,156 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:48] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:01:48,158 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:01:48,183 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:48] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:01:48,211 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:01:48,214 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:01:48] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:09:51,411 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:09:51] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:09:51,458 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:09:51] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:09:51,461 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:09:51] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:09:51,463 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:09:51] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:09:51,467 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:09:51] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:09:51,626 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:09:51] "[33mGET /Jean%20Daiben/favicon.ico HTTP/1.1[0m" 404 -
+2025-05-01 15:09:51,931 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:09:51,931 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:09:51,953 - api_productos - ERROR - Error de MySQL al obtener productos: 1146 (42S02): Table 'jeandeiben.productos' doesn't exist
+2025-05-01 15:09:51,955 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:09:51] "[35m[1mGET /api/productos HTTP/1.1[0m" 500 -
+2025-05-01 15:09:51,963 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:09:51] "[35m[1mGET /api/notificaciones/stock-bajo HTTP/1.1[0m" 500 -
+2025-05-01 15:09:52,015 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:09:52,025 - api_productos - ERROR - Error de MySQL al obtener productos: 1146 (42S02): Table 'jeandeiben.productos' doesn't exist
+2025-05-01 15:09:52,026 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:09:52] "[35m[1mGET /api/productos HTTP/1.1[0m" 500 -
+2025-05-01 15:10:16,050 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:10:16] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:10:16,090 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:10:16] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:10:16,093 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:10:16] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:10:16,095 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:10:16] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:10:16,098 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:10:16] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:10:16,257 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:10:16,258 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:10:16,260 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:10:16] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:10:16,261 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:10:16] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:10:16,315 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:10:16,317 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:10:16] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:11:06,897 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:11:06] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:11:06,938 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:11:06] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:11:06,940 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:11:06] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:11:06,940 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:11:06] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:11:06,943 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:11:06] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:11:07,544 - db_connection - ERROR - Base de datos desconocida: 1049 (42000): Unknown database 'jeandeiben'
+2025-05-01 15:11:07,544 - db_connection - ERROR - Base de datos desconocida: 1049 (42000): Unknown database 'jeandeiben'
+2025-05-01 15:11:07,544 - api_productos - ERROR - Error de MySQL al obtener productos: 1049 (42000): Unknown database 'jeandeiben'
+2025-05-01 15:11:07,547 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:11:07] "[35m[1mGET /api/productos HTTP/1.1[0m" 500 -
+2025-05-01 15:11:07,607 - db_connection - ERROR - Base de datos desconocida: 1049 (42000): Unknown database 'jeandeiben'
+2025-05-01 15:11:07,607 - api_productos - ERROR - Error de MySQL al obtener productos: 1049 (42000): Unknown database 'jeandeiben'
+2025-05-01 15:11:07,608 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:11:07] "[35m[1mGET /api/productos HTTP/1.1[0m" 500 -
+2025-05-01 15:11:07,794 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:11:07] "[35m[1mGET /api/notificaciones/stock-bajo HTTP/1.1[0m" 500 -
+2025-05-01 15:12:25,035 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:12:25] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:12:25,075 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:12:25] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:12:25,080 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:12:25] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:12:25,085 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:12:25] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:12:25,088 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:12:25] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:12:25,275 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:12:25,275 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:12:25,282 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:12:25] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:12:25,284 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:12:25] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:12:25,377 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:12:25,384 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:12:25] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:13:07,317 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:13:07] "[31m[1mDELETE /api/productos/13 HTTP/1.1[0m" 405 -
+2025-05-01 15:13:10,819 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:13:10] "[31m[1mDELETE /api/productos/13 HTTP/1.1[0m" 405 -
+2025-05-01 15:13:13,126 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:13:13] "[31m[1mDELETE /api/productos/12 HTTP/1.1[0m" 405 -
+2025-05-01 15:13:14,620 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:13:14] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:13:14,665 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:13:14] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:13:14,666 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:13:14] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:13:14,667 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:13:14] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:13:14,670 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:13:14] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:13:14,831 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:13:14,831 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:13:14,833 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:13:14] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:13:14,834 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:13:14] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:13:14,884 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:13:14,886 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:13:14] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:19:34,413 - werkzeug - INFO -  * Detected change in 'C:\\Users\\harri\\Downloads\\ing software\\gestion_inventarios\\Jean Daiben\\src\\db_config.py', reloading
+2025-05-01 15:19:38,015 - werkzeug - WARNING -  * Debugger is active!
+2025-05-01 15:19:38,046 - werkzeug - INFO -  * Debugger PIN: 107-964-847
+2025-05-01 15:19:41,588 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:41] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:19:41,621 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:41] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:19:41,623 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:41] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:19:41,624 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:41] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:19:41,630 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:41] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:19:41,747 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:41] "[33mGET /Jean%20Daiben/favicon.ico HTTP/1.1[0m" 404 -
+2025-05-01 15:19:41,967 - mysql.connector - INFO - package: mysql.connector.plugins
+2025-05-01 15:19:41,968 - mysql.connector - INFO - package: mysql.connector.plugins
+2025-05-01 15:19:41,968 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2025-05-01 15:19:41,968 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2025-05-01 15:19:41,968 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2025-05-01 15:19:41,968 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2025-05-01 15:19:41,974 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:19:41,974 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:19:41,979 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:41] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:19:41,979 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:41] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:19:42,035 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:19:42,037 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:42] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:19:57,092 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:57] "[31m[1mDELETE /api/productos/26 HTTP/1.1[0m" 405 -
+2025-05-01 15:19:59,016 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:59] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:19:59,048 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:59] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:19:59,064 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:59] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:19:59,066 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:59] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:19:59,069 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:59] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:19:59,221 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:19:59,226 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:19:59,227 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:59] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:19:59,229 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:59] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:19:59,282 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:19:59,284 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:19:59] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:20:04,156 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:04] "[31m[1mDELETE /api/productos/30 HTTP/1.1[0m" 405 -
+2025-05-01 15:20:07,304 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:07] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:20:07,344 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:07] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:20:07,346 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:07] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:20:07,348 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:07] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:20:07,352 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:07] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:20:07,500 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:20:07,500 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:20:07,503 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:07] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:20:07,503 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:07] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:20:07,563 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:20:07,565 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:07] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:20:12,369 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:12] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:20:12,369 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:12] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:20:21,829 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:20:21] "[31m[1mDELETE /api/productos/24 HTTP/1.1[0m" 405 -
+2025-05-01 15:21:19,814 - werkzeug - INFO -  * Detected change in 'C:\\Users\\harri\\Downloads\\ing software\\gestion_inventarios\\Jean Daiben\\src\\db_config.py', reloading
+2025-05-01 15:21:20,871 - werkzeug - WARNING -  * Debugger is active!
+2025-05-01 15:21:20,876 - werkzeug - INFO -  * Debugger PIN: 107-964-847
+2025-05-01 15:21:26,454 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:21:26] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:21:26,504 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:21:26] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:21:26,511 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:21:26] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:21:26,517 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:21:26] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:21:26,519 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:21:26] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:21:26,958 - mysql.connector - INFO - package: mysql.connector.plugins
+2025-05-01 15:21:26,987 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2025-05-01 15:21:26,989 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2025-05-01 15:21:26,998 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:21:27,003 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:21:27,013 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:21:27] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:21:27,016 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:21:27] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:21:27,117 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:21:27,121 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:21:27] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:21:32,626 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:21:32] "[31m[1mDELETE /api/productos/13 HTTP/1.1[0m" 405 -
+2025-05-01 15:22:53,051 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:22:53] "GET /productos/editar/12 HTTP/1.1" 200 -
+2025-05-01 15:22:53,108 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:22:53] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:22:53,115 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:22:53] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:22:53,116 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:22:53] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:22:53,123 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:22:53] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:22:53,408 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:22:53,408 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:22:53,412 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:22:53] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:22:53,412 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:22:53] "GET /api/productos/12 HTTP/1.1" 200 -
+2025-05-01 15:22:59,320 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:22:59,330 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:22:59] "PUT /api/productos/12 HTTP/1.1" 200 -
+2025-05-01 15:23:00,293 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:23:00] "GET /productos HTTP/1.1" 200 -
+2025-05-01 15:23:00,343 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:23:00] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 15:23:00,351 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:23:00] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 15:23:00,353 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:23:00] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 15:23:00,357 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:23:00] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 15:23:00,565 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:23:00,567 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:23:00] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 15:23:00,568 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:23:00,576 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:23:00] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 15:23:00,635 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 15:23:00,639 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 15:23:00] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 16:33:21,397 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 16:33:21] "GET /productos HTTP/1.1" 200 -
+2025-05-01 16:33:21,543 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 16:33:21] "[33mGET /Jean%20Daiben/static/uploads/user-profile-icon-free-vector.jpg HTTP/1.1[0m" 404 -
+2025-05-01 16:33:21,549 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 16:33:21] "[33mGET /Jean%20Daiben/static/style_inicio.css HTTP/1.1[0m" 404 -
+2025-05-01 16:33:21,555 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 16:33:21] "[33mGET /static/styles.css HTTP/1.1[0m" 404 -
+2025-05-01 16:33:21,557 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 16:33:21] "[33mGET /Jean%20Daiben/static/js/script_inicio.js HTTP/1.1[0m" 404 -
+2025-05-01 16:33:22,152 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 16:33:22,152 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 16:33:22,183 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 16:33:22] "GET /api/notificaciones/stock-bajo HTTP/1.1" 200 -
+2025-05-01 16:33:22,184 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 16:33:22] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 16:33:22,253 - db_connection - INFO - Conexión a la base de datos establecida correctamente
+2025-05-01 16:33:22,257 - werkzeug - INFO - 192.168.1.5 - - [01/May/2025 16:33:22] "GET /api/productos HTTP/1.1" 200 -
+2025-05-01 16:34:24,983 - werkzeug - INFO -  * Detected change in 'C:\\Users\\harri\\Downloads\\ing software\\gestion_inventarios\\Jean Daiben\\src\\app.py', reloading

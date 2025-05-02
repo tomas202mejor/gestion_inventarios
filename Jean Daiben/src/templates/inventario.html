@@ -13,6 +13,9 @@
     </div>
 </div>
 
+<!-- Contenedor para alertas -->
+<div id="alertContainer"></div>
+
 <div class="row mb-3">
     <div class="col-md-4">
         <input type="text" id="searchInput" class="form-control" placeholder="Buscar productos...">
@@ -73,6 +76,7 @@
         const tipoFilter = document.getElementById('tipoFilter');
         const proveedorFilter = document.getElementById('proveedorFilter');
         const btnFiltrar = document.getElementById('btnFiltrar');
+        const alertContainer = document.getElementById('alertContainer');
         
         // Cargar productos al iniciar
         cargarProductos();
@@ -101,7 +105,7 @@
                 .catch(error => {
                     console.error('Error al cargar productos:', error);
                     showLoading(false);
-                    alert('Error al cargar los productos');
+                    mostrarAlerta('error', 'Error al cargar los productos');
                 });
         }
         
@@ -138,7 +142,7 @@
                 .catch(error => {
                     console.error('Error al filtrar productos:', error);
                     showLoading(false);
-                    alert('Error al filtrar los productos');
+                    mostrarAlerta('error', 'Error al filtrar los productos');
                 });
         }
         
@@ -206,20 +210,105 @@
                 loadingIndicator.classList.add('d-none');
             }
         }
+        
+        // Función para mostrar alertas
+        window.mostrarAlerta = function(tipo, mensaje, duracion = 5000) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${tipo === 'error' ? 'danger' : 'success'} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <strong>${tipo === 'error' ? 'Error:' : 'Éxito!'}</strong> ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            alertContainer.appendChild(alertDiv);
+            
+            // Eliminar la alerta después de la duración especificada
+            setTimeout(() => {
+                alertDiv.remove();
+            }, duracion);
+        }
     });
     
     function eliminarProducto(id) {
         if (confirm(`¿Estás seguro de que deseas eliminar el producto con ID ${id}?`)) {
+            // Mostrar indicador de carga
+            document.getElementById('loadingIndicator').classList.remove('d-none');
+            
             axios.delete(`/api/productos/${id}`)
                 .then(response => {
-                    alert('Producto eliminado correctamente');
-                    window.location.reload();
+                    // Ocultar indicador de carga
+                    document.getElementById('loadingIndicator').classList.add('d-none');
+                    
+                    if (response.data && response.status === 200) {
+                        // Mostrar mensaje de éxito
+                        mostrarAlerta('success', response.data.mensaje);
+                        
+                        // Recargar los productos sin refrescar la página
+                        setTimeout(() => {
+                            cargarProductos();  // Esta función ya debería estar definida en el ámbito global
+                        }, 500);
+                    } else {
+                        throw new Error('Respuesta inesperada del servidor');
+                    }
                 })
                 .catch(error => {
+                    // Ocultar indicador de carga
+                    document.getElementById('loadingIndicator').classList.add('d-none');
+                    
                     console.error('Error al eliminar producto:', error);
-                    alert('Error al eliminar el producto');
+                    
+                    // Obtener mensaje de error específico si existe
+                    let mensajeError = 'Error al eliminar el producto';
+                    if (error.response && error.response.data && error.response.data.error) {
+                        mensajeError = error.response.data.error;
+                    }
+                    
+                    mostrarAlerta('error', mensajeError);
                 });
         }
+    }
+    
+    // Función global para cargar productos (necesaria para el refresh después de eliminar)
+    function cargarProductos() {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const productosTable = document.getElementById('productosTable');
+        const emptyMessage = document.getElementById('emptyMessage');
+        
+        loadingIndicator.classList.remove('d-none');
+        
+        axios.get('/api/productos')
+            .then(response => {
+                if (response.data.length === 0) {
+                    emptyMessage.classList.remove('d-none');
+                    productosTable.innerHTML = '';
+                } else {
+                    emptyMessage.classList.add('d-none');
+                    
+                    // Renderizar productos
+                    productosTable.innerHTML = '';
+                    response.data.forEach(producto => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${producto.id}</td>
+                            <td>${producto.nombre}</td>
+                            <td>${producto.cantidad}</td>
+                            <td>${producto.tipo || '-'}</td>
+                            <td>${producto.proveedor || '-'}</td>
+                            <td>
+                                <a href="/productos/editar/${producto.id}" class="btn btn-sm btn-warning">Editar</a>
+                                <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${producto.id})">Eliminar</button>
+                            </td>
+                        `;
+                        productosTable.appendChild(row);
+                    });
+                }
+                
+                loadingIndicator.classList.add('d-none');
+            })
+            .catch(error => {
+                console.error('Error al cargar productos:', error);
+                loadingIndicator.classList.add('d-none');
+                mostrarAlerta('error', 'Error al cargar los productos');
+            });
     }
 </script>
 {% endblock %}

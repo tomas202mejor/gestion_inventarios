@@ -1,0 +1,187 @@
+{% extends "layout.html" %}
+
+{% block title %}Gestión de Ventas - Jean Daiben{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1;
+            background-color: #212529;
+            padding-top: 20px;
+            color: white;
+        }
+        .sidebar a {
+            color: #adb5bd;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+        }
+        .sidebar a:hover {
+            color: white;
+            background-color: #343a40;
+        }
+        .sidebar a.active {
+            color: white;
+            background-color: #0d6efd;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        #ventasTable tbody tr {
+            cursor: pointer;
+        }
+        .badge-anulada {
+            background-color: #dc3545;
+            color: white;
+        }
+        .badge-emitida {
+            background-color: #28a745;
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="content">
+        <div class="header d-flex justify-content-between align-items-center">
+            <h2><i class="fas fa-shopping-cart me-2"></i> Gestión de Ventas</h2>
+            <button id="btnNuevaVenta" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i> Nueva Venta
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Listado de Ventas</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="ventasTable" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Los datos se cargarán mediante JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Nueva Venta -->
+    <div class="modal fade" id="ventaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="ventaForm">
+                        <div class="mb-3">
+                            <label for="cliente" class="form-label">Cliente</label>
+                            <select class="form-select" id="cliente" required>
+                                <option value="">Seleccione un cliente</option>
+                                <!-- Las opciones se cargarán mediante JavaScript -->
+                            </select>
+                        </div>
+
+                        <h5 class="mt-4">Productos</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm" id="productosTable">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio</th>
+                                        <th>Subtotal</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="filaProducto0">
+                                        <td>
+                                            <select class="form-select producto-select" required>
+                                                <option value="">Seleccione un producto</option>
+                                                <!-- Las opciones se cargarán mediante JavaScript -->
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control cantidad-input" value="1" min="1" required>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control precio-input" step="0.01" readonly>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control subtotal-input" step="0.01" readonly>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm eliminar-fila">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="button" class="btn btn-success" id="btnAgregarProducto">
+                                <i class="fas fa-plus me-2"></i> Agregar Producto
+                            </button>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6 offset-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <strong>Subtotal:</strong>
+                                            <span id="subtotalVenta">$0.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <strong>IVA (0%):</strong>
+                                            <span>$0.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <strong>Total:</strong>
+                                            <span id="totalVenta">$0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // Aquí iría el JavaScript para manejar la lógica de ventas
+    </script>
+{% endblock %}
