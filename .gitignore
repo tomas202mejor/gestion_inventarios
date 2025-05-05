@@ -1,0 +1,38 @@
+# Entorno virtual
+venv/
+env/
+ENV/
+.venv/
+
+# Bytecode de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de configuración de VS Code
+.vscode/
+
+# Archivos de logs
+*.log
+
+# Archivos de bases de datos SQLite
+*.sqlite3
+
+# Archivos de sistema (Mac, Windows, Linux)
+.DS_Store
+Thumbs.db
+
+# Archivos de Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Archivos de entorno de Python
+*.env
+*.env.*
+
+# Archivos de compilación (si usas Cython o similares)
+build/
+dist/
+*.egg-info/
+
+# Carpeta .idea (si usas PyCharm)
+.idea/

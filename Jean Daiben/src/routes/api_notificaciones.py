@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 import mysql.connector
-from db_config import get_db_connection  # Ya existente en tu proyecto
+from db_config import get_db_connection 
 
 # Crear Blueprint
 api_notificaciones = Blueprint('api_notificaciones', __name__)

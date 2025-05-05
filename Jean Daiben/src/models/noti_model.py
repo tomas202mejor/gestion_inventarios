@@ -8,7 +8,7 @@ class Notificacion:
         self.fecha = fecha if fecha else datetime.now()
         self.leida = leida
 
-# Ejemplo de lista de notificaciones en memoria
+# lista de notificaciones en memoria
 notificaciones_db = [
     Notificacion(1, "Producto agregado: Jeans Rojo", leida=False),
     Notificacion(2, "Producto editado: Jeans Azul", leida=True),

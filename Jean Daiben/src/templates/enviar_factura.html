@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+
+{% block title %}Enviar Factura por Email{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Enviar Factura #{{ factura.NumeroFactura }}</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/ventas" class="btn btn-secondary">Volver a Ventas</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i> Venta registrada correctamente
+            </div>
+
+            <h5 class="card-title">Detalles de la factura</h5>
+            <div class="mb-4">
+                <p><strong>Número de factura:</strong> {{ factura.NumeroFactura }}</p>
+                <p><strong>Cliente:</strong> {{ factura.NombreCliente }}</p>
+                <p><strong>Total:</strong> ${{ "%.2f"|format(factura.Total) }}</p>
+            </div>
+
+            <h5 class="card-title">Enviar factura por email</h5>
+            <form id="formEnviarFactura">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ factura.Email or '' }}" required>
+                    <div class="form-text">Se enviará la factura como PDF adjunto a este correo.</div>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="actualizar_cliente" name="actualizar_cliente" checked>
+                    <label class="form-check-label" for="actualizar_cliente">Actualizar el email del cliente</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Enviar Factura</button>
+                <a href="/ventas/{{ factura.FacturaID }}" class="btn btn-outline-secondary">Ver Factura</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formEnviarFactura = document.getElementById('formEnviarFactura');
+
+        formEnviarFactura.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const actualizarCliente = document.getElementById('actualizar_cliente').checked;
+
+            // Datos para enviar
+            const datos = {
+                email: email,
+                actualizar_cliente: actualizarCliente
+            };
+
+            // Enviar solicitud a la API
+            fetch('/api/facturas/{{ factura.FacturaID }}/enviar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.mensaje) {
+                    alert(data.mensaje);
+                    // Redireccionar a la página de ver factura
+                    window.location.href = '/ventas/{{ factura.FacturaID }}';
+                } else if (data.error) {
+                    alert('Error al enviar la factura: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error al enviar la factura. Por favor, intente nuevamente.');
+            });
+        });
+    });
+</script>
+{% endblock %}

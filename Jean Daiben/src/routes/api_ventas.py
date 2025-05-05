@@ -1,381 +1,535 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app, render_template
 import mysql.connector
-import logging
-from datetime import datetime
+from mysql.connector import Error
+import datetime
+import pdfkit
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 import os
-import jinja2
-import pdfkit 
+import secrets
+import string
 from db_config import get_db_connection
 
-# Configurar logging para el API de ventas
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("api_productos.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("api_ventas")
-
+# Configuración del blueprint
 api_ventas = Blueprint('api_ventas', __name__)
 
+# Configuración de pdfkit con la ruta al ejecutable wkhtmltopdf
+# Dependiendo de tu sistema operativo, ajusta esta ruta
+# Windows: r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+# Linux/Mac: '/usr/local/bin/wkhtmltopdf' o '/usr/bin/wkhtmltopdf'  # Ajusta esta ruta según tu sistema
+config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
 
-# Configuración para enviar correos electrónicos
-def enviar_factura_por_correo(destinatario, asunto, contenido_html, pdf_factura):
-    try:
-        # Configuración del servidor de correo (ajustar según su servidor)
-        smtp_server = "smtp.gmail.com"
-        smtp_port = 587
-        smtp_usuario = "sistema@tuempresa.com"  # Cambiar por su cuenta de correo
-        smtp_password = "tu_contraseña"         # Cambiar por su contraseña
+# Función para generar números de factura únicos
+def generar_numero_factura():
+    # Formato: INV-YYYYMMDD-XXXXX (donde XXXXX es un número aleatorio)
+    fecha = datetime.datetime.now().strftime('%Y%m%d')
+    chars = string.ascii_uppercase + string.digits
+    random_string = ''.join(secrets.choice(chars) for _ in range(5))
+    return f"INV-{fecha}-{random_string}"
 
-        # Crear mensaje
-        mensaje = MIMEMultipart()
-        mensaje['From'] = smtp_usuario
-        mensaje['To'] = destinatario
-        mensaje['Subject'] = asunto
-
-        # Agregar contenido HTML
-        mensaje.attach(MIMEText(contenido_html, 'html'))
-
-        # Adjuntar PDF
-        with open(pdf_factura, 'rb') as f:
-            adjunto = MIMEApplication(f.read(), _subtype="pdf")
-            adjunto.add_header('Content-Disposition', 'attachment', filename=os.path.basename(pdf_factura))
-            mensaje.attach(adjunto)
-
-        # Conectar al servidor SMTP y enviar
-        with smtplib.SMTP(smtp_server, smtp_port) as servidor:
-            servidor.starttls()
-            servidor.login(smtp_usuario, smtp_password)
-            servidor.send_message(mensaje)
-            
-        logger.info(f"Factura enviada por correo a {destinatario}")
-        return True
-    except Exception as e:
-        logger.error(f"Error al enviar correo: {str(e)}")
-        return False
-
-# Generar PDF de factura
+# Función para generar PDF de factura
 def generar_pdf_factura(factura_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
         # Obtener datos de la factura
-        cursor.execute("""
-            SELECT f.*, c.nombre as cliente_nombre, c.email as cliente_email, c.direccion as cliente_direccion
-            FROM facturas f
-            JOIN clientes c ON f.cliente_id = c.id
-            WHERE f.id = %s
-        """, (factura_id,))
+        query = """
+        SELECT f.*, v.ClienteID, v.UsuarioID, v.Fecha as FechaVenta, v.MetodoPago,
+               c.Nombre as NombreCliente, c.RUC, c.Direccion, c.Telefono, c.Email,
+               u.Nombre as NombreVendedor
+        FROM Facturas f
+        JOIN Ventas v ON f.VentaID = v.VentaID
+        JOIN Clientes c ON v.ClienteID = c.ClienteID
+        JOIN Usuarios u ON v.UsuarioID = u.UsuarioID
+        WHERE f.FacturaID = %s
+        """
+        cursor.execute(query, (factura_id,))
         factura = cursor.fetchone()
         
         if not factura:
-            logger.error(f"No se encontró la factura con ID {factura_id}")
+            cursor.close()
+            conn.close()
             return None
-            
-        # Obtener detalles de la factura
-        cursor.execute("""
-            SELECT df.*, p.nombre as producto_nombre, p.codigo as producto_codigo
-            FROM detalle_factura df
-            JOIN productos p ON df.producto_id = p.id
-            WHERE df.factura_id = %s
-        """, (factura_id,))
+        
+        # Obtener detalles de la venta
+        query_detalles = """
+        SELECT dv.*, p.Nombre as NombreProducto, p.Codigo
+        FROM DetalleVentas dv
+        JOIN Productos p ON dv.ProductoID = p.ProductoID
+        WHERE dv.VentaID = %s
+        """
+        cursor.execute(query_detalles, (factura['VentaID'],))
         detalles = cursor.fetchall()
         
+        cursor.close()
         conn.close()
         
-        # Crear HTML de la factura
-        env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
-        template = env.get_template('factura.html')
+        # Preparar datos para la plantilla
+        datos_plantilla = {
+            'factura': {
+                'cliente_nombre': factura['NombreCliente'],
+                'cliente_direccion': factura['Direccion'],
+                'estado': factura['Estado'],
+                'subtotal': factura['Subtotal'],
+                'iva': factura['Impuestos'],
+                'total': factura['Total']
+            },
+            'detalles': [],
+            'fecha_emision': factura['FechaEmision'].strftime('%d/%m/%Y')
+        }
         
-        html_factura = template.render(
-            factura=factura,
-            detalles=detalles,
-            fecha_emision=datetime.now().strftime("%d/%m/%Y")
+        # Preparar detalles para la plantilla
+        for detalle in detalles:
+            datos_plantilla['detalles'].append({
+                'producto_codigo': detalle['Codigo'],
+                'producto_nombre': detalle['NombreProducto'],
+                'cantidad': detalle['Cantidad'],
+                'precio_unitario': detalle['PrecioUnitario'],
+                'subtotal': detalle['Subtotal']
+            })
+        
+        # Generar HTML para el PDF
+        html_content = render_template(
+            'factura_pdf.html',
+            **datos_plantilla
         )
         
-        # Generar PDF
-        pdf_path = f"facturas/factura_{factura_id}.pdf"
-        # Asegurar que existe el directorio
-        os.makedirs("facturas", exist_ok=True)
+        # Configurar opciones de pdfkit
+        options = {
+            'page-size': 'A4',
+            'margin-top': '0.75in',
+            'margin-right': '0.75in',
+            'margin-bottom': '0.75in',
+            'margin-left': '0.75in',
+            'encoding': 'UTF-8',
+        }
         
-        # Generar PDF usando pdfkit (requiere wkhtmltopdf instalado)
-        pdfkit.from_string(html_factura, pdf_path)
+        # Crear directorio para PDFs si no existe
+        pdf_dir = os.path.join(current_app.root_path, 'static', 'pdfs')
+        if not os.path.exists(pdf_dir):
+            os.makedirs(pdf_dir)
         
-        logger.info(f"PDF de factura generado: {pdf_path}")
+        # Ruta del archivo PDF
+        pdf_filename = f"factura_{factura_id}_{factura['NumeroFactura']}.pdf"
+        pdf_path = os.path.join(pdf_dir, pdf_filename)
+        
+        # Generar PDF usando la configuración actualizada
+        pdfkit.from_string(html_content, pdf_path, options=options, configuration=config)
+        
         return pdf_path
-        
+    except Error as e:
+        current_app.logger.error(f"Error generando PDF: {str(e)}")
+        return None
     except Exception as e:
-        logger.error(f"Error al generar PDF de factura: {str(e)}")
+        current_app.logger.error(f"Error inesperado generando PDF: {str(e)}")
         return None
 
-# Endpoint para registrar una nueva venta y generar factura
-@api_ventas.route('/api/ventas', methods=['POST'])
-def registrar_venta():
+# El resto del código permanece igual
+# Ruta para obtener todos los clientes
+@api_ventas.route('/api/clientes', methods=['GET'])
+def obtener_clientes():
     try:
-        datos = request.get_json()
-        
-        # Validar datos mínimos necesarios
-        if not datos or 'cliente_id' not in datos or 'productos' not in datos:
-            return jsonify({'error': 'Datos incompletos'}), 400
-            
-        # Obtener conexión a la BD
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
+        # Consulta SQL para obtener clientes activos
+        query = "SELECT ClienteID, Nombre, RUC, Telefono, Email, TipoCliente FROM Clientes WHERE Activo = 1"
+        cursor.execute(query)
+        
+        clientes = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({"clientes": clientes})
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+
+# Ruta para registrar una nueva venta
+@api_ventas.route('/api/ventas', methods=['POST'])
+def registrar_venta():
+    try:
+        datos = request.json
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Verificar que el cliente exista
+        cursor.execute("SELECT ClienteID FROM Clientes WHERE ClienteID = %s AND Activo = 1", 
+                      (datos['cliente_id'],))
+        cliente = cursor.fetchone()
+        if not cliente:
+            cursor.close()
+            conn.close()
+            return jsonify({"error": "Cliente no encontrado o inactivo"}), 400
+        
+        # Obtener el ID del usuario (para propósitos de demo, usamos ID 1)
+        usuario_id = 1  # En un sistema real, esto vendría del sistema de autenticación
+        
         # Iniciar transacción
-        cursor.execute("START TRANSACTION")
+        conn.start_transaction()
         
-        # Crear factura
-        fecha_actual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # Crear nueva venta
+        subtotal = 0
+        impuestos = 0
+        descuento = datos.get('descuento', 0)
         
-        # Calcular total
-        total = sum(item['precio'] * item['cantidad'] for item in datos['productos'])
-        
-        # Insertar factura
+        # Crear la venta
         cursor.execute("""
-            INSERT INTO facturas (cliente_id, fecha, total, estado) 
-            VALUES (%s, %s, %s, 'EMITIDA')
-        """, (datos['cliente_id'], fecha_actual, total))
+        INSERT INTO Ventas (ClienteID, UsuarioID, Subtotal, Descuento, Impuestos, Total, MetodoPago, Estado)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            datos['cliente_id'],
+            usuario_id,
+            subtotal,  # Se actualizará después
+            descuento,
+            impuestos,  # Se actualizará después
+            0,  # Se actualizará después
+            datos.get('metodo_pago', 'efectivo'),
+            'completada'
+        ))
         
-        # Obtener ID de la factura
-        factura_id = cursor.lastrowid
+        venta_id = cursor.lastrowid
         
-        # Insertar detalles y actualizar inventario
-        for item in datos['productos']:
-            # Validar stock suficiente
-            cursor.execute("SELECT stock FROM productos WHERE id = %s", (item['producto_id'],))
-            producto = cursor.fetchone()
-            
-            if not producto:
-                cursor.execute("ROLLBACK")
-                conn.close()
-                return jsonify({'error': f'Producto con ID {item["producto_id"]} no encontrado'}), 404
-                
-            if producto['stock'] < item['cantidad']:
-                cursor.execute("ROLLBACK")
-                conn.close()
-                return jsonify({'error': f'Stock insuficiente para producto ID {item["producto_id"]}'}), 400
-            
-            # Insertar detalle de factura
+        # Procesar cada producto de la venta
+        for producto in datos['productos']:
+            # Verificar stock
             cursor.execute("""
-                INSERT INTO detalle_factura (factura_id, producto_id, cantidad, precio_unitario, subtotal)
-                VALUES (%s, %s, %s, %s, %s)
+            SELECT ProductoID, Nombre, Cantidad, PrecioVenta 
+            FROM Productos 
+            WHERE ProductoID = %s AND Activo = 1
+            """, (producto['producto_id'],))
+            
+            producto_db = cursor.fetchone()
+            if not producto_db:
+                conn.rollback()
+                cursor.close()
+                conn.close()
+                return jsonify({"error": f"Producto con ID {producto['producto_id']} no encontrado o inactivo"}), 400
+            
+            if producto_db[2] < producto['cantidad']:
+                conn.rollback()
+                cursor.close()
+                conn.close()
+                return jsonify({"error": f"Stock insuficiente para el producto {producto_db[1]}"}), 400
+            
+            # Agregar detalle de venta
+            precio_unitario = producto.get('precio', producto_db[3])  # Usar precio proporcionado o el de la BD
+            descuento_item = producto.get('descuento', 0)
+            subtotal_item = producto['cantidad'] * (precio_unitario - descuento_item)
+            
+            cursor.execute("""
+            INSERT INTO DetalleVentas (VentaID, ProductoID, Cantidad, PrecioUnitario, Descuento, Subtotal)
+            VALUES (%s, %s, %s, %s, %s, %s)
             """, (
-                factura_id, 
-                item['producto_id'], 
-                item['cantidad'], 
-                item['precio'], 
-                item['precio'] * item['cantidad']
+                venta_id,
+                producto['producto_id'],
+                producto['cantidad'],
+                precio_unitario,
+                descuento_item,
+                subtotal_item
             ))
             
             # Actualizar stock
             cursor.execute("""
-                UPDATE productos 
-                SET stock = stock - %s 
-                WHERE id = %s
-            """, (item['cantidad'], item['producto_id']))
+            UPDATE Productos
+            SET Cantidad = Cantidad - %s
+            WHERE ProductoID = %s
+            """, (producto['cantidad'], producto['producto_id']))
             
-        # Confirmar transacción
-        cursor.execute("COMMIT")
+            # Acumular subtotal
+            subtotal += subtotal_item
         
-        # Obtener email del cliente
-        cursor.execute("SELECT email FROM clientes WHERE id = %s", (datos['cliente_id'],))
-        cliente = cursor.fetchone()
+        # Calcular impuestos (IVA 12%)
+        impuestos = round(subtotal * 0.12, 2)
+        total = subtotal + impuestos - descuento
         
+        # Actualizar la venta con los totales
+        cursor.execute("""
+        UPDATE Ventas
+        SET Subtotal = %s, Impuestos = %s, Total = %s
+        WHERE VentaID = %s
+        """, (subtotal, impuestos, total, venta_id))
+        
+        # Generar factura
+        numero_factura = generar_numero_factura()
+        cursor.execute("""
+        INSERT INTO Facturas (VentaID, NumeroFactura, Subtotal, Impuestos, Total, Estado)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            venta_id,
+            numero_factura,
+            subtotal,
+            impuestos,
+            total,
+            'pendiente'  # Cambiado a 'pendiente' hasta que se envíe por correo
+        ))
+        
+        factura_id = cursor.lastrowid
+        
+        # Confirmar la transacción
+        conn.commit()
+        
+        cursor.close()
         conn.close()
         
-        # Generar PDF de factura
-        pdf_path = generar_pdf_factura(factura_id)
-        
-        # Enviar por correo si hay email y se generó el PDF
-        if cliente and cliente['email'] and pdf_path:
-            enviar_factura_por_correo(
-                cliente['email'],
-                f"Factura #{factura_id} - Jean Daiben",
-                f"Adjunto encontrará su factura #{factura_id}. Gracias por su compra.",
-                pdf_path
-            )
-        
         return jsonify({
-            'mensaje': 'Venta registrada correctamente',
-            'factura_id': factura_id
-        }), 201
+            "mensaje": "Venta registrada correctamente",
+            "venta_id": venta_id,
+            "factura_id": factura_id
+        })
         
-    except mysql.connector.Error as e:
-        logger.error(f"Error de MySQL: {str(e)}")
-        return jsonify({'error': 'Error en la base de datos'}), 500
-        
-    except Exception as e:
-        logger.error(f"Error al registrar venta: {str(e)}")
-        return jsonify({'error': 'Error al procesar la solicitud'}), 500
+    except Error as e:
+        if 'conn' in locals() and conn.is_connected():
+            conn.rollback()
+            cursor.close()
+            conn.close()
+        return jsonify({"error": str(e)}), 500
 
-# Endpoint para obtener una factura por ID
-@api_ventas.route('/api/ventas/<int:factura_id>', methods=['GET'])
+@api_ventas.route('/api/facturas/<int:factura_id>', methods=['GET'])
 def obtener_factura(factura_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
         # Obtener datos de la factura
-        cursor.execute("""
-            SELECT f.*, c.nombre as cliente_nombre, c.email as cliente_email
-            FROM facturas f
-            JOIN clientes c ON f.cliente_id = c.id
-            WHERE f.id = %s
-        """, (factura_id,))
+        query = """
+        SELECT f.*, v.ClienteID, v.UsuarioID, v.Fecha as FechaVenta, v.MetodoPago,
+               c.Nombre as NombreCliente, c.RUC, c.Direccion, c.Telefono, c.Email,
+               u.Nombre as NombreVendedor
+        FROM Facturas f
+        JOIN Ventas v ON f.VentaID = v.VentaID
+        JOIN Clientes c ON v.ClienteID = c.ClienteID
+        JOIN Usuarios u ON v.UsuarioID = u.UsuarioID
+        WHERE f.FacturaID = %s
+        """
+        cursor.execute(query, (factura_id,))
         factura = cursor.fetchone()
         
         if not factura:
+            cursor.close()
             conn.close()
-            return jsonify({'error': 'Factura no encontrada'}), 404
-            
-        # Obtener detalles de la factura
-        cursor.execute("""
-            SELECT df.*, p.nombre as producto_nombre
-            FROM detalle_factura df
-            JOIN productos p ON df.producto_id = p.id
-            WHERE df.factura_id = %s
-        """, (factura_id,))
+            return jsonify({"error": "Factura no encontrada"}), 404
+        
+        # Obtener detalles de la venta
+        query_detalles = """
+        SELECT dv.*, p.Nombre as NombreProducto, p.Codigo
+        FROM DetalleVentas dv
+        JOIN Productos p ON dv.ProductoID = p.ProductoID
+        WHERE dv.VentaID = %s
+        """
+        cursor.execute(query_detalles, (factura['VentaID'],))
         detalles = cursor.fetchall()
         
+        cursor.close()
         conn.close()
         
-        # Preparar respuesta
-        return jsonify({
-            'factura': factura,
-            'detalles': detalles
-        }), 200
+        # Construir respuesta
+        respuesta = {
+            "factura": factura,
+            "detalles": detalles
+        }
         
-    except Exception as e:
-        logger.error(f"Error al obtener factura: {str(e)}")
-        return jsonify({'error': 'Error al procesar la solicitud'}), 500
+        return jsonify(respuesta)
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
 
-# Endpoint para listar todas las ventas/facturas
-@api_ventas.route('/api/ventas', methods=['GET'])
-def listar_ventas():
+# Ruta para servir la vista de factura para el endpoint de envío
+@api_ventas.route('/factura/<int:factura_id>/enviar', methods=['GET'])
+def vista_enviar_factura(factura_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
-        cursor.execute("""
-            SELECT f.*, c.nombre as cliente_nombre
-            FROM facturas f
-            JOIN clientes c ON f.cliente_id = c.id
-            ORDER BY f.fecha DESC
-        """)
+        # Obtener datos de la factura
+        query = """
+        SELECT f.*, v.ClienteID, v.UsuarioID, v.Fecha as FechaVenta, v.MetodoPago,
+               c.Nombre as NombreCliente, c.RUC, c.Direccion, c.Telefono, c.Email,
+               u.Nombre as NombreVendedor
+        FROM Facturas f
+        JOIN Ventas v ON f.VentaID = v.VentaID
+        JOIN Clientes c ON v.ClienteID = c.ClienteID
+        JOIN Usuarios u ON v.UsuarioID = u.UsuarioID
+        WHERE f.FacturaID = %s
+        """
+        cursor.execute(query, (factura_id,))
+        factura = cursor.fetchone()
+        
+        if not factura:
+            cursor.close()
+            conn.close()
+            return render_template('error.html', mensaje="Factura no encontrada"), 404
+        
+        cursor.close()
+        conn.close()
+        
+        return render_template('enviar_factura.html', factura=factura)
+    except Error as e:
+        return render_template('error.html', mensaje=f"Error al acceder a la base de datos: {str(e)}"), 500
+
+# Nueva ruta para enviar factura por correo
+@api_ventas.route('/api/facturas/<int:factura_id>/enviar', methods=['POST'])
+def enviar_factura_api(factura_id):
+    try:
+        datos = request.json
+        email_destino = datos.get('email')
+        
+        if not email_destino:
+            return jsonify({"error": "Se requiere un correo electrónico"}), 400
+        
+        # Actualizar el email del cliente si es diferente (opcional)
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        query = """
+        SELECT f.*, v.ClienteID
+        FROM Facturas f
+        JOIN Ventas v ON f.VentaID = v.VentaID
+        WHERE f.FacturaID = %s
+        """
+        cursor.execute(query, (factura_id,))
+        factura = cursor.fetchone()
+        
+        if not factura:
+            cursor.close()
+            conn.close()
+            return jsonify({"error": "Factura no encontrada"}), 404
+        
+        cliente_id = factura['ClienteID']
+        
+        # Actualizar el email del cliente si se proporciona uno nuevo
+        if 'actualizar_cliente' in datos and datos['actualizar_cliente']:
+            cursor.execute("""
+            UPDATE Clientes
+            SET Email = %s
+            WHERE ClienteID = %s
+            """, (email_destino, cliente_id))
+            conn.commit()
+            
+        # Generar y enviar el PDF
+        resultado = generar_pdf_factura(factura_id)
+        
+        if not resultado:
+            cursor.close()
+            conn.close()
+            return jsonify({"error": "Error al generar el PDF de la factura"}), 500
+        
+        pdf_path = resultado
+        
+        # Configuración del correo
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        smtp_user = "jeandaiben12@gmail.com"  # Reemplazar con email real
+        smtp_password = "tlyc nfid umfp mrtx"  # Reemplazar con contraseña real
+        
+        # Crear mensaje
+        msg = MIMEMultipart()
+        msg['From'] = smtp_user
+        msg['To'] = email_destino
+        msg['Subject'] = f"Factura #{factura['NumeroFactura']} - Jean Daiben"
+        
+        # Cuerpo del mensaje
+        body = f"""
+        Estimado/a cliente,
+        
+        Gracias por su compra. Adjunto encontrará la factura correspondiente a su compra reciente.
+        
+        Número de Factura: {factura['NumeroFactura']}
+        Fecha: {factura['FechaEmision'].strftime('%d/%m/%Y')}
+        Total: ${factura['Total']:.2f}
+        
+        Si tiene alguna pregunta, no dude en contactarnos.
+        
+        Saludos cordiales,
+        Jean Daiben
+        Tienda de Ropa
+        """
+        
+        msg.attach(MIMEText(body, 'plain'))
+        
+        # Adjuntar PDF
+        with open(pdf_path, "rb") as f:
+            attachment = MIMEApplication(f.read(), _subtype="pdf")
+            attachment.add_header('Content-Disposition', 'attachment', filename=os.path.basename(pdf_path))
+            msg.attach(attachment)
+        
+        # Enviar correo
+        try:
+            server = smtplib.SMTP(smtp_server, smtp_port)
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            text = msg.as_string()
+            server.sendmail(smtp_user, email_destino, text)
+            server.quit()
+            
+            # Actualizar el estado de la factura a "enviada"
+            cursor.execute("""
+            UPDATE Facturas
+            SET Estado = 'enviada'
+            WHERE FacturaID = %s
+            """, (factura_id,))
+            conn.commit()
+            
+            cursor.close()
+            conn.close()
+            
+            return jsonify({"mensaje": "Factura enviada correctamente por correo electrónico"})
+        except Exception as e:
+            current_app.logger.error(f"Error al enviar correo: {str(e)}")
+            cursor.close()
+            conn.close()
+            return jsonify({"error": f"Error al enviar el correo electrónico: {str(e)}"}), 500
+        
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
+
+# Ruta para obtener todas las ventas
+@api_ventas.route('/api/ventas', methods=['GET'])
+def obtener_ventas():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        query = """
+        SELECT v.VentaID, v.Fecha, v.Subtotal, v.Impuestos, v.Total, v.MetodoPago, v.Estado,
+               c.Nombre as NombreCliente, f.NumeroFactura, f.Estado as EstadoFactura, f.FacturaID
+        FROM Ventas v
+        JOIN Clientes c ON v.ClienteID = c.ClienteID
+        LEFT JOIN Facturas f ON v.VentaID = f.VentaID
+        ORDER BY v.Fecha DESC
+        """
+        cursor.execute(query)
         ventas = cursor.fetchall()
         
+        cursor.close()
         conn.close()
         
-        return jsonify({'ventas': ventas}), 200
-        
-    except Exception as e:
-        logger.error(f"Error al listar ventas: {str(e)}")
-        return jsonify({'error': 'Error al procesar la solicitud'}), 500
+        return jsonify({"ventas": ventas})
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
 
-# Endpoint para anular una factura
-@api_ventas.route('/api/ventas/<int:factura_id>/anular', methods=['PUT'])
-def anular_factura(factura_id):
+# Ruta para obtener productos
+@api_ventas.route('/api/productos', methods=['GET'])
+def obtener_productos():
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
-        # Verificar que la factura existe
-        cursor.execute("SELECT * FROM facturas WHERE id = %s", (factura_id,))
-        factura = cursor.fetchone()
+        query = """
+        SELECT ProductoID, Codigo, Nombre, Descripcion, Cantidad, PrecioVenta
+        FROM Productos
+        WHERE Activo = 1 AND Cantidad > 0
+        ORDER BY Nombre
+        """
+        cursor.execute(query)
+        productos = cursor.fetchall()
         
-        if not factura:
-            conn.close()
-            return jsonify({'error': 'Factura no encontrada'}), 404
-            
-        if factura['estado'] == 'ANULADA':
-            conn.close()
-            return jsonify({'error': 'La factura ya está anulada'}), 400
-            
-        # Iniciar transacción
-        cursor.execute("START TRANSACTION")
-        
-        # Actualizar estado de la factura
-        cursor.execute("""
-            UPDATE facturas
-            SET estado = 'ANULADA'
-            WHERE id = %s
-        """, (factura_id,))
-        
-        # Restaurar stock de productos
-        cursor.execute("""
-            UPDATE productos p
-            JOIN detalle_factura df ON p.id = df.producto_id
-            SET p.stock = p.stock + df.cantidad
-            WHERE df.factura_id = %s
-        """, (factura_id,))
-        
-        # Confirmar transacción
-        cursor.execute("COMMIT")
-        
+        cursor.close()
         conn.close()
         
-        return jsonify({'mensaje': 'Factura anulada correctamente'}), 200
-        
-    except Exception as e:
-        logger.error(f"Error al anular factura: {str(e)}")
-        try:
-            cursor.execute("ROLLBACK")
-        except:
-            pass
-        return jsonify({'error': 'Error al procesar la solicitud'}), 500
-
-# Endpoint para reenviar factura por correo
-@api_ventas.route('/api/ventas/<int:factura_id>/enviar', methods=['POST'])
-def reenviar_factura(factura_id):
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        
-        # Verificar que la factura existe
-        cursor.execute("""
-            SELECT f.*, c.email as cliente_email
-            FROM facturas f
-            JOIN clientes c ON f.cliente_id = c.id
-            WHERE f.id = %s
-        """, (factura_id,))
-        factura = cursor.fetchone()
-        
-        conn.close()
-        
-        if not factura:
-            return jsonify({'error': 'Factura no encontrada'}), 404
-            
-        if not factura['cliente_email']:
-            return jsonify({'error': 'El cliente no tiene correo electrónico registrado'}), 400
-            
-        # Generar PDF de la factura
-        pdf_path = generar_pdf_factura(factura_id)
-        
-        if not pdf_path:
-            return jsonify({'error': 'Error al generar la factura PDF'}), 500
-            
-        # Enviar por correo
-        result = enviar_factura_por_correo(
-            factura['cliente_email'],
-            f"Factura #{factura_id} - Jean Daiben",
-            f"Adjunto encontrará su factura #{factura_id}. Gracias por su compra.",
-            pdf_path
-        )
-        
-        if result:
-            return jsonify({'mensaje': 'Factura enviada correctamente'}), 200
-        else:
-            return jsonify({'error': 'Error al enviar la factura por correo'}), 500
-            
-    except Exception as e:
-        logger.error(f"Error al reenviar factura: {str(e)}")
-        return jsonify({'error': 'Error al procesar la solicitud'}), 500
+        return jsonify({"productos": productos})
+    except Error as e:
+        return jsonify({"error": str(e)}), 500

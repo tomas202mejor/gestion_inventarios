@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block title %}Predicción de Demanda{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8 offset-md-2">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <ion-icon name="bar-chart-outline"></ion-icon>
+        <span class="ms-2">Predicción de Demanda</span>
+      </div>
+      <div class="card-body">
+        <form id="formPrediccion" class="row g-3 align-items-end">
+          <div class="col-sm-8">
+            <label for="producto_id" class="form-label">ID del Producto</label>
+            <input type="number" class="form-control" id="producto_id" placeholder="Ej. 1" required>
+          </div>
+          <div class="col-sm-4">
+            <button type="submit" class="btn btn-primary w-100">
+              <ion-icon name="play-circle-outline"></ion-icon>
+              <span class="ms-1">Predecir</span>
+            </button>
+          </div>
+        </form>
+
+        <div id="resultado" class="mt-4 d-none">
+          <div id="alertResultado" class="alert" role="alert"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('formPrediccion').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const productoId = document.getElementById('producto_id').value;
+  const resultadoCont = document.getElementById('resultado');
+  const alertBox = document.getElementById('alertResultado');
+
+  resultadoCont.classList.add('d-none');
+  alertBox.className = 'alert';
+
+  fetch('/api/prediccion', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ producto_id: productoId })
+  })
+  .then(res => res.json().then(body => ({ status: res.status, body })))
+  .then(({ status, body }) => {
+    if (status === 200 && body.prediccion !== undefined) {
+      alertBox.classList.add('alert-success');
+      alertBox.textContent = `🔮 Demanda estimada: ${body.prediccion} unidades`;
+    } else {
+      alertBox.classList.add('alert-danger');
+      alertBox.textContent = `❌ ${body.error || 'Error al obtener la predicción.'}`;
+    }
+    resultadoCont.classList.remove('d-none');
+  })
+  .catch(err => {
+    alertBox.classList.add('alert-danger');
+    alertBox.textContent = '❌ Error de conexión con el servidor.';
+    resultadoCont.classList.remove('d-none');
+    console.error('Fetch error:', err);
+  });
+});
+</script>
+{% endblock %}

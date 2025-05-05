@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura JEANDAIBEN</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .table th {
+            background-color: #007bff;
+            color: white;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="header">
+            <h1>Factura JEANDAIBEN</h1>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h5>Datos del Vendedor</h5>
+                <p><strong>RUC:</strong> 0123456789001</p>
+                <p><strong>Dirección:</strong> Calle Que te importa</p>
+                <p><strong>Teléfono:</strong> 3772776775</p>
+            </div>
+            <div class="col-md-6 text-right">
+                <h5>Datos del Cliente</h5>
+                <p><strong>Cliente:</strong> {{ factura.cliente_nombre }}</p>
+                {% if factura.cliente_direccion %}
+                <p><strong>Dirección:</strong> {{ factura.cliente_direccion }}</p>
+                {% endif %}
+                <p><strong>Fecha:</strong> {{ fecha_emision }}</p>
+                <p><strong>Observaciones:</strong> {{ factura.estado }}</p>
+            </div>
+        </div>
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detalle in detalles %}
+                <tr>
+                    <td>{{ detalle.producto_codigo }}</td>
+                    <td>{{ detalle.producto_nombre }}</td>
+                    <td>{{ detalle.cantidad }}</td>
+                    <td>${{ "%.2f"|format(detalle.precio_unitario) }}</td>
+                    <td>${{ "%.2f"|format(detalle.subtotal) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Subtotal: <span class="total">${{ "%.2f"|format(factura.subtotal) }}</span></h5>
+                <h5>IVA: <span class="total">${{ "%.2f"|format(factura.iva) }}</span></h5>
+            </div>
+            <div class="col-md-6 text-right">
+                <h5>Total a pagar: <span class="total">${{ "%.2f"|format(factura.total) }}</span></h5>
+            </div>
+        </div>
+        <div class="footer">
+            <p>¡Gracias por su compra!</p>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

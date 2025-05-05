@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" href="/Jean Daiben/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="/Jean Daiben/static/style_inicio.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     {% block head %}{% endblock %}
@@ -72,30 +71,35 @@
                     <span>Home</span>
                 </a>
             </li>
+            <div class="linea"></div>
             <li>
                 <a href="/Jean Daiben/src/templates/dashboard.html">
                     <ion-icon name="clipboard-outline"></ion-icon>
                     <span>Dashboard</span>
                 </a>
             </li>
+            <div class="linea"></div>
             <li>
                 <a href="/productos">
                     <ion-icon name="briefcase-outline"></ion-icon>
                     <span>Inventario</span>
                 </a>
             </li>
+            <div class="linea"></div>
+            <li>
+                <a href="{{ url_for('prediccion') }}">
+                    <ion-icon name="bar-chart-outline"></ion-icon>
+                    <span>Predicción</span>
+                </a>
+            </li>
+            <div class="linea"></div>
             <li>
                 <a href="{{ url_for('ventas') }}">
                     <ion-icon name="cart-outline"></ion-icon>
                     <span>Ventas</span>
                 </a>
             </li>
-            <li>
-                <a href="#">
-                    <ion-icon name="bar-chart-outline"></ion-icon>
-                    <span>Predicción</span>
-                </a>
-            </li>
+            <div class="linea"></div>
             <li>
                 <a href="{{ url_for('notificaciones') }}">
                     <ion-icon name="notifications"></ion-icon>
@@ -115,17 +119,6 @@
                 <div class="base">
                     <div class="circulo"></div>
                 </div>
-            </div>
-        </div>
-
-        <div class="usuario d-flex align-items-center mt-4">
-            <img src="/Jean Daiben/static/uploads/user-profile-icon-free-vector.jpg" alt="">
-            <div class="info-usuario ms-3">
-                <div class="nombre-email">
-                    <span class="nombre">Admin</span><br>
-                    <span class="email">admin@gmail.com</span>
-                </div>
-                <ion-icon name="ellipsis-vertical-outline"></ion-icon>
             </div>
         </div>
     </div>
