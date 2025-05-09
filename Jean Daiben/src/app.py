@@ -1,27 +1,30 @@
-from flask import Flask, render_template, redirect, url_for
-from routes.api_productos import api_productos  # Blueprint de productos
-from routes.api_notificaciones import api_notificaciones  # Blueprint de notificaciones
-from routes.api_ventas import api_ventas  # Blueprint de ventas
+from flask import Flask, render_template, redirect, url_for, session
+from flask_cors import CORS
+from routes.api_productos import api_productos
+from routes.api_notificaciones import api_notificaciones
+from routes.api_ventas import api_ventas
 from routes.api_inicio import api_inicio
 from routes.api_notifi_guardadas import api_notifi_guardadas
-import os
+from routes.api_prediccion import api_prediccion
+from routes.api_login import api_login  # NUEVO
 
 app = Flask(__name__)
-# Registrar los blueprints
+app.secret_key = 'tu_clave_secreta_segura'  # Necesario para sesiones
+CORS(app)
+
+# Registrar Blueprints
 app.register_blueprint(api_productos)
 app.register_blueprint(api_notificaciones)
 app.register_blueprint(api_inicio)
-app.register_blueprint(api_notifi_guardadas)  # CORREGIDO
+app.register_blueprint(api_notifi_guardadas)
 app.register_blueprint(api_ventas)
+app.register_blueprint(api_prediccion)
+app.register_blueprint(api_login)  # NUEVO
 
-# Rutas del frontend
+# Rutas del frontend protegidas (puedes protegerlas con decorador luego)
 @app.route('/')
 def index():
-    return redirect(url_for('inicio'))
-
-@app.route('/login')
-def login():
-    return render_template('index.html')
+    return redirect(url_for('api_login.login'))
 
 @app.route('/inicio')
 def inicio():
@@ -59,11 +62,8 @@ def editar_producto(id):
 def ver_factura(factura_id):
     return render_template('ver_factura.html', factura_id=factura_id)
 
-# Nueva ruta para la página de envío de factura por email
 @app.route('/factura/<int:factura_id>/enviar')
 def enviar_factura(factura_id):
-    # En este punto, normalmente buscaríamos los datos de la factura en la base de datos
-    # y los pasaríamos a la plantilla, pero aquí solo redirigimos a la plantilla
     return render_template('enviar_factura.html', factura_id=factura_id)
 
 if __name__ == '__main__':
