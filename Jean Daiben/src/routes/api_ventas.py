@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app, render_template
+from flask import Blueprint, request, jsonify, current_app, render_template, send_from_directory
 import mysql.connector
 from mysql.connector import Error
 import datetime
@@ -485,6 +485,43 @@ def enviar_factura_api(factura_id):
         return jsonify({"error": str(e)}), 500
     except Exception as e:
         return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
+
+# Ruta para descargar factura
+@api_ventas.route('/api/facturas/<int:factura_id>/descargar', methods=['GET'])
+def descargar_factura(factura_id):
+    try:
+        # Generar el PDF
+        pdf_path = generar_pdf_factura(factura_id)
+        
+        if not pdf_path:
+            return jsonify({"error": "Error al generar el PDF de la factura"}), 500
+        
+        # Obtener datos de la factura para el nombre del archivo
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT NumeroFactura FROM Facturas WHERE FacturaID = %s", (factura_id,))
+        factura = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if not factura:
+            return jsonify({"error": "Factura no encontrada"}), 404
+        
+        # Obtener el directorio base y el nombre del archivo
+        base_dir = os.path.dirname(pdf_path)
+        filename = os.path.basename(pdf_path)
+        
+        # Enviar el archivo como respuesta para descarga
+        return send_from_directory(
+            directory=base_dir,
+            path=filename,
+            as_attachment=True,
+            download_name=f"factura_{factura['NumeroFactura']}.pdf"
+        )
+        
+    except Exception as e:
+        current_app.logger.error(f"Error al descargar la factura: {str(e)}")
+        return jsonify({"error": f"Error al descargar la factura: {str(e)}"}), 500
 
 # Ruta para obtener todas las ventas
 @api_ventas.route('/api/ventas', methods=['GET'])

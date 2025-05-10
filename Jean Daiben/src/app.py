@@ -1,9 +1,10 @@
 from flask import Flask, render_template, redirect, url_for
 from routes.api_productos import api_productos  # Blueprint de productos
 from routes.api_notificaciones import api_notificaciones  # Blueprint de notificaciones
-from routes.api_ventas import api_ventas  # Blueprint de ventas
+from routes.api_ventas import api_ventas  # Blueprint de ventas  
 from routes.api_inicio import api_inicio
 from routes.api_notifi_guardadas import api_notifi_guardadas
+from routes.api_dashboard import api_dashboard  # Nuevo Blueprint para el dashboard
 import os
 
 app = Flask(__name__)
@@ -11,8 +12,9 @@ app = Flask(__name__)
 app.register_blueprint(api_productos)
 app.register_blueprint(api_notificaciones)
 app.register_blueprint(api_inicio)
-app.register_blueprint(api_notifi_guardadas)  # CORREGIDO
+app.register_blueprint(api_notifi_guardadas)
 app.register_blueprint(api_ventas)
+app.register_blueprint(api_dashboard)  # Registramos el nuevo blueprint
 
 # Rutas del frontend
 @app.route('/')
@@ -58,12 +60,17 @@ def editar_producto(id):
 @app.route('/factura/<int:factura_id>')
 def ver_factura(factura_id):
     return render_template('ver_factura.html', factura_id=factura_id)
+# Esta ruta está bien configurada, solo necesitamos implementar correctamente 
+# la plantilla ver_factura.html y la funcionalidad de descarga en api_ventas.py
 
-# Nueva ruta para la página de envío de factura por email
+# Nueva ruta para el dashboard de ventas
+@app.route('/dashboard_ventas')
+def dashboard_ventas():
+    return render_template('dashboard_ventas.html')
+
+# Ruta para la página de envío de factura por email
 @app.route('/factura/<int:factura_id>/enviar')
 def enviar_factura(factura_id):
-    # En este punto, normalmente buscaríamos los datos de la factura en la base de datos
-    # y los pasaríamos a la plantilla, pero aquí solo redirigimos a la plantilla
     return render_template('enviar_factura.html', factura_id=factura_id)
 
 if __name__ == '__main__':

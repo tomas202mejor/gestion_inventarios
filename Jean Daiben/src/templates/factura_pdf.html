@@ -83,12 +83,36 @@
                 <h5>Total a pagar: <span class="total">${{ "%.2f"|format(factura.total) }}</span></h5>
             </div>
         </div>
+
+        <!-- Código de Barras -->
+        <div class="text-center mt-5">
+            <h6>Código de Factura:</h6>
+            <svg id="barcode"></svg>
+        </div>
+
         <div class="footer">
             <p>¡Gracias por su compra!</p>
         </div>
     </div>
+
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- JsBarcode -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script>
+        // Generar código de barras con el código de la factura
+        const codigoFactura = "{{ factura.codigo_factura }}";
+        JsBarcode("#barcode", codigoFactura, {
+            format: "CODE128",
+            lineColor: "#000",
+            width: 2,
+            height: 50,
+            displayValue: true,
+            fontSize: 14
+        });
+    </script>
 </body>
 </html>

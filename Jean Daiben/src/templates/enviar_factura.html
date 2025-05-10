@@ -40,7 +40,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary">Enviar Factura</button>
-                <a href="/ventas/{{ factura.FacturaID }}" class="btn btn-outline-secondary">Ver Factura</a>
+                <a href="/factura/{{ factura.FacturaID }}" class="btn btn-outline-secondary">Ver Factura</a>
             </form>
         </div>
     </div>
@@ -76,7 +76,7 @@
                 if (data.mensaje) {
                     alert(data.mensaje);
                     // Redireccionar a la página de ver factura
-                    window.location.href = '/ventas/{{ factura.FacturaID }}';
+                    window.location.href = '/factura/{{ factura.FacturaID }}';
                 } else if (data.error) {
                     alert('Error al enviar la factura: ' + data.error);
                 }
