@@ -12,10 +12,22 @@
 
   <div class="card p-4 shadow-lg" style="max-width: 400px; width: 100%;">
     <h2 class="text-center mb-4">Inicio de sesión</h2>
-    <form method="post">
+
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alert alert-danger" role="alert">
+          {% for category, message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form id="login-form" action="/login" method="POST">
       <div class="mb-3">
-        <label for="username" class="form-label">Nombre de usuario</label>
-        <input type="text" id="username" name="username" class="form-control" required>
+        <label for="email" class="form-label">Correo electrónico</label>
+        <input type="email" id="email" name="email" class="form-control" required>
       </div>
       <div class="mb-3">
         <label for="password" class="form-label">Contraseña</label>

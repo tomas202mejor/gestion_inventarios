@@ -16,8 +16,8 @@ api_prediccion = Blueprint('api_prediccion', __name__, url_prefix='/api')
 
 @api_prediccion.route('/prediccion', methods=['POST'])
 def prediccion_api():
-    # Aquí manejamos solo la API, no renderizamos plantillas
     producto_id = request.form.get('producto_id')
+
     if not producto_id:
         return jsonify({'error': 'Producto no especificado'}), 400
 
@@ -25,15 +25,18 @@ def prediccion_api():
     try:
         modelo_path = f'modelos/modelo_producto_{producto_id}.h5'
 
-        # Entrenamos si no existe
+        # Entrenar si no existe
         if not os.path.exists(modelo_path):
             exito = entrenar_modelo_para_producto(producto_id, conn)
             if not exito:
                 return jsonify({'error': 'No hay suficientes datos para entrenar el modelo'}), 400
 
-        modelo = load_model(modelo_path)
+        # Cargar modelo
+        from keras.losses import MeanSquaredError
+        modelo = load_model(modelo_path, compile=False)
+        modelo.compile(optimizer='adam', loss=MeanSquaredError())
 
-        # Obtenemos ventas recientes
+        # Obtener ventas diarias recientes
         query = """
             SELECT Fecha, Cantidad
             FROM Ventas V
@@ -42,26 +45,31 @@ def prediccion_api():
             ORDER BY Fecha
         """
         df = pd.read_sql(query, conn, params=(producto_id,))
+
+        if df.empty:
+            return jsonify({'error': 'No hay ventas recientes para el producto'}), 400
+
         df['Fecha'] = pd.to_datetime(df['Fecha'])
         df.set_index('Fecha', inplace=True)
-        df = df.resample('D').sum().fillna(0)
+        df = df.resample('D').sum().fillna(0)  # ventas por día
 
+        # Escalado
         scaler = MinMaxScaler()
-        data_scaled = scaler.fit_transform(df[['Cantidad']])
+        datos = scaler.fit_transform(df[['Cantidad']])
 
         ventana = 7
-        if len(data_scaled) < ventana:
+        if len(datos) < ventana:
             return jsonify({'error': 'No hay suficientes datos recientes para predecir'}), 400
 
-        X_pred = np.array([data_scaled[-ventana:]])
-        pred_scaled = modelo.predict(X_pred)
-        pred = scaler.inverse_transform(pred_scaled)[0][0]
+        X_pred = np.array([datos[-ventana:]])
+        prediccion = modelo.predict(X_pred)
+        valor = float(scaler.inverse_transform(prediccion)[0][0])
 
-        return jsonify({'prediccion': round(pred, 2)})
+        return jsonify({'prediccion': round(valor, 2)})
 
     except Exception as e:
-        print("Error durante la predicción:", e)
-        return jsonify({'error': 'Error al obtener la predicción. Revisa la consola.'}), 500
+        print(f"Error durante la predicción: {e}")
+        return jsonify({'error': f'Error al obtener la predicción. Detalles: {str(e)}'}), 500
 
     finally:
         conn.close()

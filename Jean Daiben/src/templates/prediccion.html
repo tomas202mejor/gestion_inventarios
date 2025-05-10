@@ -42,19 +42,32 @@ document.getElementById('formPrediccion').addEventListener('submit', function(e)
   const resultadoCont = document.getElementById('resultado');
   const alertBox = document.getElementById('alertResultado');
 
+  // Validación adicional antes de enviar
+  if (!productoId || productoId <= 0) {
+    alertBox.classList.add('alert-danger');
+    alertBox.textContent = '❌ El ID del producto debe ser un número válido.';
+    resultadoCont.classList.remove('d-none');
+    return;
+  }
+
+  // Limpiar el área de resultados antes de la nueva predicción
   resultadoCont.classList.add('d-none');
   alertBox.className = 'alert';
 
-  fetch('/api/prediccion', {
+  // URL de la API de predicción (se puede configurar más tarde para producción)
+  const apiUrl = 'http://localhost:5000/api/prediccion';  // Asegúrate de que la URL sea correcta
+
+  // Realizar la solicitud de predicción
+  fetch(apiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ producto_id: productoId })
   })
   .then(res => res.json().then(body => ({ status: res.status, body })))
   .then(({ status, body }) => {
-    if (status === 200 && body.prediccion !== undefined) {
+    if (status === 200 && body.prediccion !== undefined) {  // Cambié de prediccion_diaria a prediccion
       alertBox.classList.add('alert-success');
-      alertBox.textContent = `🔮 Demanda estimada: ${body.prediccion} unidades`;
+      alertBox.textContent = `🔮 Demanda estimada para el día siguiente: ${body.prediccion} unidades`;  // Cambié de prediccion_diaria a prediccion
     } else {
       alertBox.classList.add('alert-danger');
       alertBox.textContent = `❌ ${body.error || 'Error al obtener la predicción.'}`;

@@ -1,29 +1,34 @@
-from flask import Flask, render_template, redirect, url_for
-from routes.api_productos import api_productos  # Blueprint de productos
-from routes.api_notificaciones import api_notificaciones  # Blueprint de notificaciones
-from routes.api_ventas import api_ventas  # Blueprint de ventas  
+from flask import Flask, render_template, redirect, url_for, session
+from flask_cors import CORS
+from routes.api_productos import api_productos
+from routes.api_notificaciones import api_notificaciones
+from routes.api_ventas import api_ventas
 from routes.api_inicio import api_inicio
 from routes.api_notifi_guardadas import api_notifi_guardadas
+from routes.api_prediccion import api_prediccion
+from routes.api_login import api_login  # NUEVO
 from routes.api_dashboard import api_dashboard  # Nuevo Blueprint para el dashboard
 import os
 
 app = Flask(__name__)
-# Registrar los blueprints
+app.secret_key = 'tu_clave_secreta_segura'  # Necesario para sesiones
+CORS(app)
+
+# Registrar Blueprints
 app.register_blueprint(api_productos)
 app.register_blueprint(api_notificaciones)
 app.register_blueprint(api_inicio)
 app.register_blueprint(api_notifi_guardadas)
 app.register_blueprint(api_ventas)
 app.register_blueprint(api_dashboard)  # Registramos el nuevo blueprint
+app.register_blueprint(api_prediccion)
+app.register_blueprint(api_login)  # NUEVO
 
-# Rutas del frontend
+
+# Rutas del frontend protegidas (puedes protegerlas con decorador luego)
 @app.route('/')
 def index():
-    return redirect(url_for('inicio'))
-
-@app.route('/login')
-def login():
-    return render_template('index.html')
+    return redirect(url_for('api_login.login'))
 
 @app.route('/inicio')
 def inicio():

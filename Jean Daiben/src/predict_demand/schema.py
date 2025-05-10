@@ -10,3 +10,4 @@ class EntradaPrediccion(BaseModel):
     producto: str
     ventas: List[Venta]
     semanas_a_predecir: int = 4
+

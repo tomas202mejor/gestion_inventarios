@@ -58,57 +58,80 @@
             border-top: 1px solid #ccc;
             margin: 1rem 0;
         }
+
+        /* Modo oscuro */
+        body.dark-mode {
+            background-color:rgb(0, 0, 0);
+            color: #e0e0e0;
+        }
+        body.dark-mode .sidebar {
+            background-color:rgb(16, 23, 57);
+            border-color: #333;
+        }
+        body.dark-mode .sidebar ul li a {
+            color: #e0e0e0;
+        }
+        body.dark-mode .sidebar ul li a:hover {
+            background-color:rgb(44, 44, 44);
+        }
+        body.dark-mode .navbar {
+            background-color:rgb(16, 23, 57) !important;
+        }
+        body.dark-mode footer {
+            background-color: #1f1f1f;
+            color: #aaa;
+        }
+
+        /* Switch visual */
+        .switch .base {
+            width: 40px;
+            height: 20px;
+            background-color: #ccc;
+            border-radius: 10px;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+        .switch .base .circulo {
+            width: 18px;
+            height: 18px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            transition: transform 0.3s;
+        }
+        .switch.activo .base {
+            background-color: #0d6efd;
+        }
+        .switch.activo .base .circulo {
+            transform: translateX(20px);
+        }
     </style>
 </head>
 <body>
     <!-- Sidebar lateral izquierda -->
     <div class="sidebar">
         <ul>
-            <li>
-                <a href="{{ url_for('inicio') }}">
-                    <ion-icon name="home-outline"></ion-icon>
-                    <span>Home</span>
-                </a>
-            </li>
+            <li><a href="{{ url_for('inicio') }}"><ion-icon name="home-outline"></ion-icon><span>Home</span></a></li>
             <div class="linea"></div>
-            <li>
-                <a href="/dashboard_ventas">
-                    <ion-icon name="clipboard-outline"></ion-icon>
-                    <span>Dashboard</span>
-                </a>
-            </li>
+            <li><a href="/Jean Daiben/src/templates/dashboard.html"><ion-icon name="clipboard-outline"></ion-icon><span>Dashboard</span></a></li>
             <div class="linea"></div>
-            <li>
-                <a href="/productos">
-                    <ion-icon name="briefcase-outline"></ion-icon>
-                    <span>Inventario</span>
-                </a>
-            </li>
+            <li><a href="/productos"><ion-icon name="briefcase-outline"></ion-icon><span>Inventario</span></a></li>
             <div class="linea"></div>
-            <li>
-                <a href="{{ url_for('prediccion') }}">
-                    <ion-icon name="bar-chart-outline"></ion-icon>
-                    <span>Predicción</span>
-                </a>
-            </li>
+        {% if session.get('usuario_rol') in ['admin'] %}
+            <li><a href="{{ url_for('prediccion') }}"><ion-icon name="bar-chart-outline"></ion-icon><span>Predicción</span></a></li>
             <div class="linea"></div>
-            <li>
-                <a href="{{ url_for('ventas') }}">
-                    <ion-icon name="cart-outline"></ion-icon>
-                    <span>Ventas</span>
-                </a>
-            </li>
+        {% endif %}
+            <li><a href="{{ url_for('ventas') }}"><ion-icon name="cart-outline"></ion-icon><span>Ventas</span></a></li>
             <div class="linea"></div>
-            <li>
-                <a href="{{ url_for('notificaciones') }}">
-                    <ion-icon name="notifications"></ion-icon>
-                    <span>Notificaciones</span>
-                </a>                
-            </li>
+            <li><a href="{{ url_for('notificaciones') }}"><ion-icon name="notifications"></ion-icon><span>Notificaciones</span></a></li>
+            <div class="linea"></div>
+            <li><a href="{{ url_for('api_login.logout') }}" class="text-danger"><ion-icon name="log-out-outline"></ion-icon><span>Cerrar sesión</span></a></li>
         </ul>
-
         <div class="linea"></div>
 
+        <!-- Modo Oscuro -->
         <div class="modo-oscuro d-flex justify-content-between align-items-center">
             <div class="info d-flex align-items-center">
                 <ion-icon name="moon"></ion-icon>
@@ -126,13 +149,11 @@
     <div class="main-content">
         <!-- Barra superior -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-            <div class="position-absolute top-0 end-0 p-3" style="z-index: 1050;">
+            <div class="position-absolute top-0 end-0 p-2" style="z-index: 1050;">
                 <div class="position-relative">
                     <button type="button" class="btn btn-light" id="notificacionesBtn" data-bs-toggle="popover" title="Alertas de Stock Bajo" data-bs-html="true" data-bs-content="Cargando...">
                         🔔
-                        <span id="badgeCantidad" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
-                            0
-                        </span>
+                        <span id="badgeCantidad" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
                     </button>
                 </div>
             </div>
@@ -159,28 +180,43 @@
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script>
+        // Notificaciones de stock
         document.addEventListener('DOMContentLoaded', function () {
             fetch('/api/notificaciones/stock-bajo')
                 .then(response => response.json())
                 .then(data => {
                     const badge = document.getElementById('badgeCantidad');
                     const btn = document.getElementById('notificacionesBtn');
-    
+
                     if (data.stock_bajo && data.stock_bajo.length > 0) {
                         badge.textContent = data.stock_bajo.length;
                         badge.style.display = 'inline';
-    
                         const lista = data.stock_bajo.map(p => `<div>🔻 ${p.nombre} (Cantidad: ${p.cantidad})</div>`).join('');
                         btn.setAttribute('data-bs-content', lista);
                     } else {
                         btn.setAttribute('data-bs-content', 'No hay alertas de stock bajo.');
                     }
-    
-                    const popover = new bootstrap.Popover(btn);
+
+                    new bootstrap.Popover(btn);
                 })
-                .catch(error => {
-                    console.error('Error al cargar alertas:', error);
-                });
+                .catch(error => console.error('Error al cargar alertas:', error));
+        });
+
+        // Modo oscuro
+        document.addEventListener('DOMContentLoaded', function () {
+            const switchBtn = document.querySelector('.switch');
+            const body = document.body;
+
+            if (localStorage.getItem('modoOscuro') === 'true') {
+                body.classList.add('dark-mode');
+                switchBtn.classList.add('activo');
+            }
+
+            switchBtn.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                switchBtn.classList.toggle('activo');
+                localStorage.setItem('modoOscuro', body.classList.contains('dark-mode'));
+            });
         });
     </script>
 </body>
