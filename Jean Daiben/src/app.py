@@ -8,6 +8,8 @@ from routes.api_notifi_guardadas import api_notifi_guardadas
 from routes.api_prediccion import api_prediccion
 from routes.api_login import api_login  # NUEVO
 from routes.api_dashboard import api_dashboard  # Nuevo Blueprint para el dashboard
+from routes.api_pedidos import api_pedidos
+import pymysql
 import os
 
 app = Flask(__name__)
@@ -16,6 +18,7 @@ CORS(app)
 
 # Registrar Blueprints
 app.register_blueprint(api_productos)
+app.register_blueprint(api_pedidos)
 app.register_blueprint(api_notificaciones)
 app.register_blueprint(api_inicio)
 app.register_blueprint(api_notifi_guardadas)
@@ -28,7 +31,11 @@ app.register_blueprint(api_login)  # NUEVO
 # Rutas del frontend protegidas (puedes protegerlas con decorador luego)
 @app.route('/')
 def index():
-    return redirect(url_for('api_login.login'))
+    return redirect(url_for('api_login.login'))  # Redirige a la ruta de inicio de sesión
+
+@app.route('/login')
+def login():
+    return render_template('index.html')
 
 @app.route('/inicio')
 def inicio():
@@ -65,18 +72,15 @@ def editar_producto(id):
 @app.route('/factura/<int:factura_id>')
 def ver_factura(factura_id):
     return render_template('ver_factura.html', factura_id=factura_id)
-# Esta ruta está bien configurada, solo necesitamos implementar correctamente 
-# la plantilla ver_factura.html y la funcionalidad de descarga en api_ventas.py
 
-# Nueva ruta para el dashboard de ventas
 @app.route('/dashboard_ventas')
 def dashboard_ventas():
     return render_template('dashboard_ventas.html')
 
-# Ruta para la página de envío de factura por email
 @app.route('/factura/<int:factura_id>/enviar')
 def enviar_factura(factura_id):
     return render_template('enviar_factura.html', factura_id=factura_id)
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

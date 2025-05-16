@@ -17,3 +17,4 @@ def actualizar_ultimo_acceso(usuario_id):
     conn.commit()
     cursor.close()
     conn.close()
+

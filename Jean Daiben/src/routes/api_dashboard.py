@@ -4,22 +4,17 @@ from mysql.connector import Error
 import datetime
 from db_config import get_db_connection
 
-# Configuración del blueprint
 api_dashboard = Blueprint('api_dashboard', __name__)
 
-# Ruta para obtener todas las ventas con posibles filtros y detalles
 @api_dashboard.route('/api/dashboard/ventas', methods=['GET'])
 def obtener_ventas_dashboard():
     try:
-        # Obtener parámetros de filtro
         estado = request.args.get('estado')
         fecha_inicio = request.args.get('fecha_inicio')
         fecha_fin = request.args.get('fecha_fin')
         
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        
-        # Construir la consulta base - Modificada para incluir DetalleVentas
         query = """
         SELECT v.VentaID, v.Fecha, v.Subtotal, v.Impuestos, v.Total, v.MetodoPago, v.Estado,
                c.Nombre as NombreCliente, c.ClienteID, f.NumeroFactura, f.Estado as EstadoFactura, f.FacturaID,
@@ -29,11 +24,7 @@ def obtener_ventas_dashboard():
         LEFT JOIN Facturas f ON v.VentaID = f.VentaID
         WHERE 1=1
         """
-        
-        # Parámetros para la consulta
         params = []
-        
-        # Añadir filtros si existen
         if estado:
             query += " AND v.Estado = %s"
             params.append(estado)
@@ -46,13 +37,11 @@ def obtener_ventas_dashboard():
             query += " AND DATE(v.Fecha) <= %s"
             params.append(fecha_fin)
         
-        # Ordenar por fecha descendente
         query += " ORDER BY v.Fecha DESC"
         
         cursor.execute(query, params)
         ventas = cursor.fetchall()
         
-        # Para cada venta, obtener detalles de los productos (limitado a primeros 3 para preview)
         for venta in ventas:
             detalle_query = """
             SELECT dv.DetalleVentaID, dv.ProductoID, p.Nombre as NombreProducto, 
@@ -64,18 +53,13 @@ def obtener_ventas_dashboard():
             """
             cursor.execute(detalle_query, (venta['VentaID'],))
             venta['Detalles'] = cursor.fetchall()
-            
-            # Convertir valores Decimal a float para serialización JSON
+    
             for key in ['Subtotal', 'Impuestos', 'Total']:
                 if key in venta and venta[key] is not None:
                     venta[key] = float(venta[key])
-            
-            # Convertir fechas a formato ISO
             if 'Fecha' in venta and venta['Fecha'] is not None:
                 venta['Fecha'] = venta['Fecha'].isoformat()
         
-        # Calcular estadísticas
-        # Query para total de ventas completadas/pendientes
         stats_query = """
         SELECT 
             COUNT(*) as total,
@@ -86,7 +70,6 @@ def obtener_ventas_dashboard():
         FROM Ventas
         """
         
-        # Aplicar los mismos filtros a las estadísticas
         stats_params = []
         stats_where_clauses = []
         
@@ -126,7 +109,6 @@ def obtener_ventas_dashboard():
     except Error as e:
         return jsonify({"error": str(e)}), 500
 
-# Ruta para obtener resumen por método de pago
 @api_dashboard.route('/api/dashboard/metodos-pago', methods=['GET'])
 def obtener_resumen_metodos_pago():
     try:
@@ -144,7 +126,6 @@ def obtener_resumen_metodos_pago():
         cursor.execute(query)
         resumen = cursor.fetchall()
         
-        # Convertir valores Decimal a float para serialización JSON
         for item in resumen:
             if 'Total' in item and item['Total'] is not None:
                 item['Total'] = float(item['Total'])
@@ -155,8 +136,6 @@ def obtener_resumen_metodos_pago():
         return jsonify({"metodos_pago": resumen})
     except Error as e:
         return jsonify({"error": str(e)}), 500
-
-# Ruta para obtener resumen por estado de factura
 @api_dashboard.route('/api/dashboard/estados-factura', methods=['GET'])
 def obtener_resumen_estados_factura():
     try:
@@ -180,14 +159,12 @@ def obtener_resumen_estados_factura():
     except Error as e:
         return jsonify({"error": str(e)}), 500
 
-# Ruta para obtener detalles de una venta específica
 @api_dashboard.route('/api/dashboard/ventas/<int:venta_id>', methods=['GET'])
 def obtener_detalle_venta(venta_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
-        # Obtener información de la venta
         venta_query = """
         SELECT v.VentaID, v.Fecha, v.Subtotal, v.Impuestos, v.Total, v.MetodoPago, v.Estado,
                v.Observaciones, c.ClienteID, c.Nombre as NombreCliente, c.Email as EmailCliente, 
@@ -203,16 +180,13 @@ def obtener_detalle_venta(venta_id):
         if not venta:
             return jsonify({"error": "Venta no encontrada"}), 404
         
-        # Convertir valores Decimal a float para serialización JSON
         for key in ['Subtotal', 'Impuestos', 'Total']:
             if key in venta and venta[key] is not None:
                 venta[key] = float(venta[key])
         
-        # Convertir fechas a formato ISO
         if 'Fecha' in venta and venta['Fecha'] is not None:
             venta['Fecha'] = venta['Fecha'].isoformat()
         
-        # Obtener detalles de los productos
         detalle_query = """
         SELECT dv.DetalleVentaID, dv.ProductoID, p.Nombre as NombreProducto, p.Codigo as CodigoProducto,
                dv.Cantidad, dv.PrecioUnitario, dv.Descuento, dv.Subtotal
@@ -222,8 +196,6 @@ def obtener_detalle_venta(venta_id):
         """
         cursor.execute(detalle_query, (venta_id,))
         detalles = cursor.fetchall()
-        
-        # Convertir valores Decimal a float en los detalles
         for detalle in detalles:
             for key in ['PrecioUnitario', 'Descuento', 'Subtotal']:
                 if key in detalle and detalle[key] is not None:

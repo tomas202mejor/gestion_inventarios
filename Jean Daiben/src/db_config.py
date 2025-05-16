@@ -1,5 +1,7 @@
 import mysql.connector
 from mysql.connector import pooling
+import pymysql
+
 
 # Crear el pool una sola vez al importar el archivo
 dbconfig = {
