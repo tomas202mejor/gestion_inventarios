@@ -7,17 +7,17 @@
     <div class="col-md-8">
         <h1>Crear Nueva Venta</h1>
     </div>
-    <div class="col-md-4 text-end">
-        <a href="/ventas" class="btn btn-secondary">Volver a Ventas</a>
-    </div>
 </div>
 
 <form id="formNuevaVenta">
     <div class="mb-3">
         <label for="cliente_id" class="form-label">Cliente:</label>
-        <select class="form-select" id="cliente_id" name="cliente_id" required>
-            <option value="">Seleccionar Cliente</option>
-        </select>
+        <div class="input-group">
+            <input type="text" class="form-control" id="filtro_cliente" placeholder="Buscar cliente...">
+            <select class="form-select" id="cliente_id" name="cliente_id" required>
+                <option value="">Seleccionar Cliente</option>
+            </select>
+        </div>
     </div>
 
     <div id="productos_venta">
@@ -25,27 +25,86 @@
 
     <button type="button" id="agregar_producto" class="btn btn-success mb-3">Agregar Producto</button>
 
-    <button type="submit" class="btn btn-primary">Registrar Venta</button>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="metodo_pago" class="form-label">Método de Pago:</label>
+                <select class="form-select" id="metodo_pago" name="metodo_pago">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="tarjeta">Tarjeta de Crédito</option>
+                    <option value="transferencia">Transferencia Bancaria</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="descuento" class="form-label">Descuento Total:</label>
+                <div class="input-group">
+                    <input type="number" class="form-control" id="descuento" name="descuento" value="0" min="0" step="0.01">
+                    <span class="input-group-text">$</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4 mb-4">
+        <div class="card-header bg-light">
+            <h5 class="card-title mb-0">Resumen de la Venta</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Subtotal:</strong> <span id="resumen_subtotal">$0.00</span></p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>IVA (12%):</strong> <span id="resumen_iva">$0.00</span></p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Total:</strong> <span id="resumen_total" class="fs-5 fw-bold">$0.00</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-lg">Registrar Venta</button>
 </form>
 
 <template id="template_producto">
-    <div class="row mb-3 producto-item" data-producto-id="">
-        <div class="col-md-6">
-            <label class="form-label">Producto:</label>
-            <select class="form-select producto-select" name="productos[][producto_id]" required>
-                <option value="">Seleccionar Producto</option>
-            </select>
+    <div class="row mb-3 producto-item card p-3" data-producto-id="">
+        <div class="col-md-12 mb-2">
+            <div class="d-flex justify-content-between">
+                <h5 class="producto-titulo">Producto</h5>
+                <button type="button" class="btn btn-danger btn-sm eliminar-producto">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+            </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-12 mb-3">
+            <label class="form-label">Producto:</label>
+            <div class="input-group">
+                <input type="text" class="form-control filtro-producto" placeholder="Buscar producto...">
+                <select class="form-select producto-select" name="productos[][producto_id]" required>
+                    <option value="">Seleccionar Producto</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
             <label class="form-label">Cantidad:</label>
             <input type="number" class="form-control cantidad-input" name="productos[][cantidad]" value="1" min="1" required>
         </div>
-        <div class="col-md-3">
-            <label class="form-label">Precio:</label>
-            <input type="number" class="form-control precio-input" name="productos[][precio]" min="0.01" step="0.01" required>
+        <div class="col-md-4">
+            <label class="form-label">Precio unitario:</label>
+            <div class="input-group">
+                <input type="number" class="form-control precio-input" name="productos[][precio]" min="0.01" step="0.01" readonly>
+                <span class="input-group-text">$</span>
+            </div>
         </div>
-        <div class="col-12 text-end">
-            <button type="button" class="btn btn-danger btn-sm eliminar-producto">Eliminar</button>
+        <div class="col-md-4">
+            <label class="form-label">Subtotal:</label>
+            <div class="input-group">
+                <input type="text" class="form-control subtotal-item" readonly>
+                <span class="input-group-text">$</span>
+            </div>
         </div>
     </div>
 </template>
@@ -54,134 +113,265 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const clienteSelect = document.getElementById('cliente_id');
-        const agregarProductoBtn = document.getElementById('agregar_producto');
-        const productosVentaDiv = document.getElementById('productos_venta');
-        const formNuevaVenta = document.getElementById('formNuevaVenta');
-        const templateProducto = document.getElementById('template_producto');
-
-        // Cargar clientes al cargar la página
-        fetch('/api/clientes')
-            .then(response => response.json())
-            .then(data => {
-                console.log('Datos de clientes recibidos:', data);
-                if (data && data.clientes) {
-                    data.clientes.forEach(cliente => {
-                        console.log('Cliente:', cliente);
-                        const option = document.createElement('option');
-                        option.value = cliente.ClienteID;
-                        option.textContent = cliente.Nombre + ' (' + cliente.TipoCliente + ')';
-                        clienteSelect.appendChild(option);
-                    });
-                } else {
-                    console.error('Error: La respuesta de /api/clientes no tiene la estructura esperada.', data);
-                }
-            })
-            .catch(error => console.error('Error al cargar clientes:', error));
-
-        // Función para cargar productos en un select
-        function cargarProductosEnSelect(selectElement) {
-            fetch('/api/productos')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Datos de productos recibidos:', data);
-                    
-                    // Verifica si data es un array directamente (como en paste-4.txt)
-                    const productos = Array.isArray(data) ? data : (data.productos || []);
-                    
-                    productos.forEach(producto => {
-                        console.log('Producto:', producto);
-                        const option = document.createElement('option');
-                        
-                        // Usar id o ProductoID, dependiendo de cuál exista
-                        const productoID = producto.id !== undefined ? producto.id : producto.ProductoID;
-                        const nombreProducto = producto.nombre !== undefined ? producto.nombre : producto.Nombre;
-                        const cantidadProducto = producto.cantidad !== undefined ? producto.cantidad : producto.Cantidad;
-                        
-                        option.value = productoID;
-                        option.textContent = nombreProducto + ' (Stock: ' + cantidadProducto + ')';
-                        selectElement.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error al cargar productos:', error));
-        }
-
-        // Evento para agregar un nuevo producto a la venta
-        agregarProductoBtn.addEventListener('click', function() {
-            const nuevoProductoDiv = templateProducto.content.cloneNode(true);
-            const productoSelect = nuevoProductoDiv.querySelector('.producto-select');
-            cargarProductosEnSelect(productoSelect);
-            productosVentaDiv.appendChild(nuevoProductoDiv);
-
-            // Evento para eliminar un producto agregado
-            const eliminarBtn = productosVentaDiv.lastElementChild.querySelector('.eliminar-producto');
-            eliminarBtn.addEventListener('click', function() {
-                this.closest('.producto-item').remove();
-            });
-        });
-
-        // Cargar productos iniciales (si es necesario)
-        const primerProductoSelect = document.querySelector('#productos_venta .producto-select');
-        if (primerProductoSelect) {
-            cargarProductosEnSelect(primerProductoSelect);
-        } else if (agregarProductoBtn) {
-            agregarProductoBtn.click();
-        }
-
-        // Evento para registrar la venta
-        formNuevaVenta.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const clienteId = clienteSelect.value;
-            const productos = [];
-            const productoItems = productosVentaDiv.querySelectorAll('.producto-item');
-
-            productoItems.forEach(item => {
-                const productoId = item.querySelector('.producto-select').value;
-                const cantidad = item.querySelector('.cantidad-input').value;
-                const precio = item.querySelector('.precio-input').value;
-                if (productoId) {
-                    productos.push({
-                        producto_id: parseInt(productoId),
-                        cantidad: parseInt(cantidad),
-                        precio: parseFloat(precio)
-                    });
-                }
-            });
-
-            if (!clienteId) {
-                alert('Por favor, selecciona un cliente.');
-                return;
+        // Módulo para manejar clientes
+        const ClienteModule = (function() {
+            const clienteSelect = document.getElementById('cliente_id');
+            const filtroCliente = document.getElementById('filtro_cliente');
+            
+            function renderizarClientes(clientes) {
+                const primeraOpcion = clienteSelect.options[0];
+                clienteSelect.innerHTML = '';
+                clienteSelect.appendChild(primeraOpcion);
+                
+                clientes.forEach(cliente => {
+                    const option = document.createElement('option');
+                    option.value = cliente.ClienteID;
+                    option.textContent = cliente.Nombre + ' (' + cliente.TipoCliente + ')';
+                    option.dataset.nombre = cliente.Nombre.toLowerCase();
+                    option.dataset.tipo = cliente.TipoCliente.toLowerCase();
+                    clienteSelect.appendChild(option);
+                });
             }
-
-            if (productos.length === 0) {
-                alert('Por favor, agrega al menos un producto a la venta.');
-                return;
+            
+            function filtrarClientes() {
+                const texto = filtroCliente.value.toLowerCase();
+                Array.from(clienteSelect.options).forEach(option => {
+                    if (option.value === '') return;
+                    option.style.display = option.dataset.nombre.includes(texto) || 
+                                         option.dataset.tipo.includes(texto) ? '' : 'none';
+                });
             }
-
-            const ventaData = {
-                cliente_id: parseInt(clienteId),
-                productos: productos
-            };
-
-            fetch('/api/ventas', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
+            
+            return {
+                init: function() {
+                    fetch('/api/clientes')
+                        .then(response => response.json())
+                        .then(data => data.clientes && renderizarClientes(data.clientes))
+                        .catch(console.error);
+                    
+                    filtroCliente.addEventListener('input', filtrarClientes);
                 },
-                body: JSON.stringify(ventaData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.mensaje) {
-                    // Redirigir a la página de envío de factura en lugar de mostrar alerta
-                    window.location.href = '/factura/' + data.factura_id + '/enviar';
-                } else if (data.error) {
-                    alert('Error al registrar la venta: ' + data.error);
+                getClienteSeleccionado: function() {
+                    return clienteSelect.value;
                 }
-            })
-            .catch(error => console.error('Error al registrar la venta:', error));
-        });
+            };
+        })();
+
+        // Módulo para manejar productos
+        const ProductoModule = (function() {
+            function cargarProductosEnSelect(selectElement, productos) {
+                const primeraOpcion = selectElement.options[0];
+                selectElement.innerHTML = '';
+                selectElement.appendChild(primeraOpcion);
+                
+                productos.forEach(producto => {
+                    const productoID = producto.ProductoID ?? producto.id;
+                    const nombreProducto = producto.Nombre ?? producto.nombre;
+                    const cantidadProducto = producto.Cantidad ?? producto.cantidad ?? 0;
+                    const precioProducto = producto.PrecioVenta ?? producto.precio_venta ?? producto.Precio ?? 0;
+                    
+                    const option = document.createElement('option');
+                    option.value = productoID;
+                    option.textContent = `${nombreProducto} (Stock: ${cantidadProducto})`;
+                    option.dataset.nombre = nombreProducto.toLowerCase();
+                    option.dataset.precio = precioProducto;
+                    option.dataset.stock = cantidadProducto;
+                    selectElement.appendChild(option);
+                });
+            }
+            
+            function configurarFiltroProducto(filterInput, selectElement) {
+                filterInput.addEventListener('input', function() {
+                    const texto = this.value.toLowerCase();
+                    Array.from(selectElement.options).forEach(option => {
+                        if (option.value === '') return;
+                        option.style.display = option.dataset.nombre.includes(texto) ? '' : 'none';
+                    });
+                });
+            }
+            
+            function configurarEventoProductoSelect(productoSelect, precioInput, cantidadInput, subtotalItem) {
+                productoSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    if (selectedOption && selectedOption.dataset.precio) {
+                        const precio = parseFloat(selectedOption.dataset.precio);
+                        precioInput.value = precio.toFixed(2);
+                        calcularSubtotalProducto(cantidadInput, precioInput, subtotalItem);
+                        VentaModule.actualizarResumen();
+                    }
+                });
+            }
+            
+            function calcularSubtotalProducto(cantidadInput, precioInput, subtotalItem) {
+                const cantidad = parseFloat(cantidadInput.value) || 0;
+                const precio = parseFloat(precioInput.value) || 0;
+                subtotalItem.value = (cantidad * precio).toFixed(2);
+            }
+            
+            return {
+                cargarProductos: function() {
+                    return fetch('/api/productos')
+                        .then(response => response.json())
+                        .then(data => Array.isArray(data) ? data : (data.productos || []))
+                        .catch(error => {
+                            console.error('Error al cargar productos:', error);
+                            return [];
+                        });
+                },
+                inicializarProductoItem: function(nuevoProductoDiv, productos) {
+                    const productoSelect = nuevoProductoDiv.querySelector('.producto-select');
+                    const precioInput = nuevoProductoDiv.querySelector('.precio-input');
+                    const cantidadInput = nuevoProductoDiv.querySelector('.cantidad-input');
+                    const subtotalItem = nuevoProductoDiv.querySelector('.subtotal-item');
+                    const filtroProducto = nuevoProductoDiv.querySelector('.filtro-producto');
+                    
+                    cargarProductosEnSelect(productoSelect, productos);
+                    configurarFiltroProducto(filtroProducto, productoSelect);
+                    configurarEventoProductoSelect(productoSelect, precioInput, cantidadInput, subtotalItem);
+                    
+                    // Solo la cantidad puede actualizar el subtotal, el precio es fijo
+                    cantidadInput.addEventListener('input', () => {
+                        calcularSubtotalProducto(cantidadInput, precioInput, subtotalItem);
+                        VentaModule.actualizarResumen();
+                    });
+                }
+            };
+        })();
+
+        // Módulo para manejar la venta
+        const VentaModule = (function() {
+            const form = document.getElementById('formNuevaVenta');
+            const agregarBtn = document.getElementById('agregar_producto');
+            const productosDiv = document.getElementById('productos_venta');
+            const template = document.getElementById('template_producto');
+            const resumenSubtotal = document.getElementById('resumen_subtotal');
+            const resumenIva = document.getElementById('resumen_iva');
+            const resumenTotal = document.getElementById('resumen_total');
+            const descuentoInput = document.getElementById('descuento');
+            
+            let productosData = [];
+            
+            function agregarProducto() {
+                const nuevoProducto = template.content.cloneNode(true);
+                ProductoModule.inicializarProductoItem(nuevoProducto, productosData);
+                productosDiv.appendChild(nuevoProducto);
+                
+                productosDiv.lastElementChild.querySelector('.eliminar-producto')
+                    .addEventListener('click', function() {
+                        this.closest('.producto-item').remove();
+                        actualizarResumen();
+                    });
+            }
+            
+            function actualizarResumen() {
+                let subtotal = 0;
+                document.querySelectorAll('.subtotal-item').forEach(item => {
+                    subtotal += parseFloat(item.value) || 0;
+                });
+                
+                const iva = subtotal * 0.12;
+                const descuento = parseFloat(descuentoInput.value) || 0;
+                const total = subtotal + iva - descuento;
+                
+                resumenSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+                resumenIva.textContent = `$${iva.toFixed(2)}`;
+                resumenTotal.textContent = `$${total.toFixed(2)}`;
+            }
+            
+            function prepararDatosVenta() {
+                const productos = [];
+                document.querySelectorAll('.producto-item').forEach(item => {
+                    const productoId = item.querySelector('.producto-select').value;
+                    const cantidad = item.querySelector('.cantidad-input').value;
+                    const precio = item.querySelector('.precio-input').value;
+                    
+                    if (productoId) {
+                        productos.push({
+                            producto_id: parseInt(productoId),
+                            cantidad: parseInt(cantidad),
+                            precio: parseFloat(precio)
+                        });
+                    }
+                });
+                
+                return {
+                    cliente_id: parseInt(ClienteModule.getClienteSeleccionado()),
+                    productos: productos,
+                    metodo_pago: document.getElementById('metodo_pago').value,
+                    descuento: parseFloat(descuentoInput.value) || 0
+                };
+            }
+            
+            function validarFormulario() {
+                if (!ClienteModule.getClienteSeleccionado()) {
+                    alert('Selecciona un cliente');
+                    return false;
+                }
+                
+                const productos = document.querySelectorAll('.producto-item');
+                if (productos.length === 0) {
+                    alert('Agrega al menos un producto');
+                    return false;
+                }
+                
+                for (const item of productos) {
+                    const productoId = item.querySelector('.producto-select').value;
+                    const cantidad = item.querySelector('.cantidad-input').value;
+                    const precio = item.querySelector('.precio-input').value;
+                    
+                    if (!productoId || !cantidad || !precio) {
+                        alert('Completa todos los campos de productos');
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+            
+            return {
+                init: function() {
+                    ProductoModule.cargarProductos()
+                        .then(productos => {
+                            productosData = productos;
+                            agregarProducto();
+                        });
+                    
+                    agregarBtn.addEventListener('click', agregarProducto);
+                    descuentoInput.addEventListener('input', actualizarResumen);
+                    
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        if (!validarFormulario()) return;
+                        
+                        fetch('/api/ventas', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(prepararDatosVenta())
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.mensaje) {
+                                window.location.href = '/factura/' + data.factura_id + '/enviar';
+                            } else if (data.error) {
+                                alert('Error: ' + data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error al procesar la venta');
+                        });
+                    });
+                },
+                actualizarResumen: actualizarResumen
+            };
+        })();
+
+        // Inicializar módulos
+        ClienteModule.init();
+        VentaModule.init();
     });
 </script>
 {% endblock %}

@@ -16,7 +16,7 @@ def get_productos():
     proveedor = request.args.get('proveedor')
     stock_minimo = request.args.get('stock_minimo')
     
-    query = "SELECT ProductoID as id, Nombre as nombre, Cantidad as cantidad, Tipo as tipo, Proveedor as proveedor FROM Productos WHERE 1=1"
+    query = "SELECT ProductoID as id, Nombre as nombre, Cantidad as cantidad, Tipo as tipo, Proveedor as proveedor, PrecioVenta as precio_venta FROM Productos WHERE 1=1"
     params = []
     
     if tipo:
@@ -45,7 +45,7 @@ def get_producto(id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     
-    cursor.execute("SELECT ProductoID as id, Nombre as nombre, Cantidad as cantidad, Tipo as tipo, Proveedor as proveedor FROM Productos WHERE ProductoID = %s", (id,))
+    cursor.execute("SELECT ProductoID as id, Nombre as nombre, Cantidad as cantidad, Tipo as tipo, Proveedor as proveedor, PrecioVenta as precio_venta FROM Productos WHERE ProductoID = %s", (id,))
     producto = cursor.fetchone()
     
     cursor.close()
@@ -73,24 +73,21 @@ def crear_producto():
     
     try:
         cursor.execute(
-            "INSERT INTO Productos (Nombre, Cantidad, Tipo, Proveedor) VALUES (%s, %s, %s, %s)",
-            (datos['nombre'], datos['cantidad'], datos.get('tipo'), datos.get('proveedor'))
+            "INSERT INTO Productos (Nombre, Cantidad, Tipo, Proveedor, PrecioVenta) VALUES (%s, %s, %s, %s, %s)",
+            (datos['nombre'], datos['cantidad'], datos.get('tipo'), datos.get('proveedor'), datos.get('precio_venta', 0))
         )
         conn.commit()
         
         # Obtener el ID del producto recién creado
         producto_id = cursor.lastrowid
         
-        # Obtener el producto completo
-        cursor.execute("SELECT ProductoID as id, Nombre as nombre, Cantidad as cantidad, Tipo as tipo, Proveedor as proveedor FROM Productos WHERE ProductoID = %s", (producto_id,))
-        producto_creado = cursor.fetchone()
-        
         return jsonify({
             "id": producto_id,
             "nombre": datos['nombre'],
             "cantidad": datos['cantidad'],
             "tipo": datos.get('tipo'),
-            "proveedor": datos.get('proveedor')
+            "proveedor": datos.get('proveedor'),
+            "precio_venta": datos.get('precio_venta', 0)
         }), 201
     except mysql.connector.Error as e:
         conn.rollback()
@@ -108,7 +105,7 @@ def actualizar_producto(id):
     datos = request.get_json()
     
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     
     try:
         # Verificar si el producto existe
@@ -135,6 +132,10 @@ def actualizar_producto(id):
         if 'proveedor' in datos:
             update_fields.append("Proveedor = %s")
             params.append(datos['proveedor'])
+            
+        if 'precio_venta' in datos:
+            update_fields.append("PrecioVenta = %s")
+            params.append(datos['precio_venta'])
         
         if not update_fields:
             return jsonify({"error": "No se proporcionaron campos para actualizar"}), 400
@@ -146,16 +147,10 @@ def actualizar_producto(id):
         conn.commit()
         
         # Obtener el producto actualizado
-        cursor.execute("SELECT ProductoID as id, Nombre as nombre, Cantidad as cantidad, Tipo as tipo, Proveedor as proveedor FROM Productos WHERE ProductoID = %s", (id,))
+        cursor.execute("SELECT ProductoID as id, Nombre as nombre, Cantidad as cantidad, Tipo as tipo, Proveedor as proveedor, PrecioVenta as precio_venta FROM Productos WHERE ProductoID = %s", (id,))
         producto_actualizado = cursor.fetchone()
         
-        return jsonify({
-            "id": id,
-            "nombre": datos.get('nombre', producto_actualizado[1]),
-            "cantidad": datos.get('cantidad', producto_actualizado[2]),
-            "tipo": datos.get('tipo', producto_actualizado[3]),
-            "proveedor": datos.get('proveedor', producto_actualizado[4])
-        })
+        return jsonify(producto_actualizado)
     except mysql.connector.Error as e:
         conn.rollback()
         return jsonify({"error": str(e)}), 500
@@ -194,7 +189,7 @@ def get_stock_disponible():
     
     try:
         # En MySQL se debe llamar a un procedimiento almacenado diferente
-        cursor.execute("SELECT ProductoID as id, Nombre as nombre, Cantidad as cantidad FROM Productos")
+        cursor.execute("SELECT ProductoID as id, Nombre as nombre, Cantidad as cantidad, PrecioVenta as precio_venta FROM Productos")
         productos = cursor.fetchall()
         
         return jsonify(productos)
@@ -213,7 +208,7 @@ def get_alertas_stock():
     try:
         cursor.execute("""
             SELECT p.ProductoID as producto_id, p.Nombre as nombre, p.Cantidad as cantidad_actual, 
-                   a.NivelBajo as nivel_bajo, a.Fecha as fecha_alerta
+                   p.PrecioVenta as precio_venta, a.NivelBajo as nivel_bajo, a.Fecha as fecha_alerta
             FROM Alertas a
             JOIN Productos p ON a.ProductoID = p.ProductoID
             ORDER BY a.Fecha DESC
