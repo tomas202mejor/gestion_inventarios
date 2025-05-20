@@ -188,7 +188,8 @@
         .toggle-sidebar-btn {
             position: fixed;
             left: 250px;
-            top: 10px;
+            top: 50%;
+            transform: translateY(-50%);
             background-color: #0d6efd;
             color: white;
             border: none;
@@ -266,6 +267,11 @@
         body.modo-oscuro footer {
             background-color: #1e1e1e !important;
             color: #f1f1f1 !important;
+        }
+        body.modo-oscuro .card .btn {
+            background-color: #444 !important; /* Fondo gris oscuro */
+            color: #fff !important;            /* Texto blanco */
+            border: 1px solid #666 !important; /* Borde visible */
         }
     </style>
 </head>
