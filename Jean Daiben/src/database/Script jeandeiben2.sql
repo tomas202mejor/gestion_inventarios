@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS Ventas (
     Impuestos DECIMAL(12,2) NOT NULL DEFAULT 0.00,
     Total DECIMAL(12,2) NOT NULL,
     MetodoPago ENUM('efectivo', 'tarjeta', 'transferencia') NOT NULL DEFAULT 'efectivo',
-    Estado ENUM('pendiente', 'completada', 'cancelada') NOT NULL DEFAULT 'pendiente',
+    Estado ENUM('pendiente', 'completada', 'cancelada', 'Enviada') NOT NULL DEFAULT 'pendiente',
     Observaciones TEXT NULL,
     FOREIGN KEY (ClienteID) REFERENCES Clientes(ClienteID),
     FOREIGN KEY (UsuarioID) REFERENCES Usuarios(UsuarioID),
