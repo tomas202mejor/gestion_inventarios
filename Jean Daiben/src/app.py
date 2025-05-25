@@ -65,6 +65,10 @@ def nueva_venta():
 def agregar_producto():
     return render_template('agregar.html')
 
+@app.route('/reportes')
+def reportes():
+    return render_template('reportes.html')
+
 @app.route('/productos/editar/<int:id>')
 def editar_producto(id):
     return render_template('editar.html', producto_id=id)
@@ -81,6 +85,21 @@ def dashboard_ventas():
 def enviar_factura(factura_id):
     return render_template('enviar_factura.html', factura_id=factura_id)
 
+@app.route('/api/reportes/<tipo>')
+def api_reportes(tipo):
+    if tipo == 'ventas':
+        labels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun']
+        data = [120, 150, 90, 200, 170, 130]
+    elif tipo == 'stock':
+        labels = ['Producto A', 'Producto B', 'Producto C', 'Producto D']
+        data = [50, 30, 20, 10]
+    elif tipo == 'demanda':
+        labels = ['Casco', 'Guantes', 'Llantas', 'Aceite']
+        data = [80, 110, 60, 90]
+    else:
+        return jsonify({'error': 'Tipo de reporte no válido'}), 400
+
+    return jsonify({'labels': labels, 'data': data})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
