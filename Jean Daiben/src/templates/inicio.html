@@ -137,7 +137,12 @@
             border-color: #20c997;
             background-color: white;
         }
-        
+
+        .btn-reportes {
+            color: #17a2b8;
+            border-color: #17a2b8;
+            background-color: white;
+        }
         .footer {
             text-align: center;
             padding: 20px;
@@ -154,6 +159,7 @@
         .orders-icon { color: #6610f2; }
         .sales-icon { color: #fd7e14; }
         .notifications-icon { color: #20c997; }
+        .reportes-icon {color: #20c997;; }
         
         /* Sidebar styles */
         #sidebar {
@@ -302,6 +308,8 @@
                 <hr />
                 <li class="nav-item"><a href="/notificaciones" class="nav-link"><ion-icon name="notifications"></ion-icon> Notificaciones</a></li>
                 <hr />
+                <li class="nav-item"><a href="/reportes" class="nav-link"><ion-icon name="document-text-outline"></ion-icon> Reportes</a></li>
+                 <hr />
                 <li class="nav-item"><a href="/logout" class="nav-link text-danger"><ion-icon name="log-out-outline"></ion-icon> Cerrar sesión</a></li>
             </ul>
             <hr />
@@ -392,6 +400,15 @@
                         <h3 class="card-title">Notificaciones</h3>
                         <p class="card-description">Alertas y notificaciones del sistema.</p>
                         <a href="/notificaciones" class="btn btn-notificaciones">Ir a Notificaciones</a>
+                    </div>
+
+                    div class="card">
+                        <div class="card-icon reports-icon">
+                            <ion-icon name="document-text-outline" size="large"></ion-icon>
+                        </div>
+                        <h3 class="card-title">Reportes</h3>
+                        <p class="card-description">Generación y consulta de reportes.</p>
+                        <a href="/reportes" class="btn btn-reportes">Ir a Reportes</a>
                     </div>
                 </div>
             </div>
