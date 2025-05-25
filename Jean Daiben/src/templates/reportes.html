@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistema Jean Daiben - Reportes</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f6f6f6;
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header a {
+      text-decoration: none;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-stock {
+      color: #007bff;
+      border: 1px solid #007bff;
+    }
+
+    .btn-ventas {
+      color: #28a745;
+      border: 1px solid #28a745;
+    }
+
+    .btn-demanda {
+      color: #ffc107;
+      border: 1px solid #ffc107;
+    }
+
+    .btn-header {
+      background-color: white;
+      color: #007bff;
+      border: 1px solid white;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .btn-header:hover {
+      background-color: #e6e6e6;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .card-container {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      width: 250px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .card h2 {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .card p {
+      margin: 1rem 0;
+      color: #555;
+    }
+
+    .btn:hover {
+      background-color: rgba(0,0,0,0.05);
+    }
+
+    canvas {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="#">JEAN DAIBEN</a>
+    <a href="{{ url_for('inicio') }}" class="btn btn-header">Volver al Inicio</a>
+  </header>
+
+  <div class="container">
+    <h1>Bienvenido al Sistema de Reportes Jean Daiben</h1>
+    
+    <div class="card-container">
+
+      <div class="card">
+        <img src="https://img.icons8.com/fluency-systems-regular/48/007bff/warehouse.png"/>
+        <h2>Reporte Stock</h2>
+        <p>Consulta el inventario y niveles actuales de stock.</p>
+        <button onclick="generarPDF('stock')" class="btn btn-stock">Descargar Reporte Stock</button>
+      </div>
+
+      <div class="card">
+        <img src="https://img.icons8.com/fluency-systems-regular/48/28a745/sales-performance.png"/>
+        <h2>Reporte Ventas</h2>
+        <p>Visualiza las estadísticas de ventas realizadas.</p>
+        <button onclick="generarPDF('ventas')" class="btn btn-ventas">Descargar Reporte Ventas</button>
+      </div>
+
+      <div class="card">
+        <img src="https://img.icons8.com/fluency-systems-regular/48/ffc107/combo-chart.png"/>
+        <h2>Reporte Demanda</h2>
+        <p>Análisis de la demanda y tendencias de productos.</p>
+        <button onclick="generarPDF('demanda')" class="btn btn-demanda">Descargar Reporte Demanda</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Canvases ocultos para capturar gráficos -->
+  <canvas id="barChart" width="400" height="300"></canvas>
+  <canvas id="pieChart" width="400" height="300"></canvas>
+
+  <script>
+    async function generarPDF(tipo) {
+      const { jsPDF } = window.jspdf;
+
+      const resp = await fetch(`/api/reportes/${tipo}`);
+      const result = await resp.json();
+      const labels = result.labels;
+      const data = result.data;
+
+      const ctxBar = document.getElementById('barChart').getContext('2d');
+      const barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{ label: `Reporte ${tipo}`, data: data, backgroundColor: '#007bff' }]
+        },
+        options: { animation:false, responsive:false, plugins:{ legend:{ display:false }} }
+      });
+
+      const ctxPie = document.getElementById('pieChart').getContext('2d');
+      const pieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: [
+              '#007bff','#28a745','#ffc107','#17a2b8','#dc3545','#6f42c1','#20c997','#fd7e14'
+            ]
+          }]
+        },
+        options: { animation:false, responsive:false }
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const pdf = new jsPDF();
+      pdf.setFontSize(22).setTextColor('#007bff')
+         .text(`REPORTE ${tipo.toUpperCase()}`, 50, 20);
+
+      pdf.setFontSize(12).setTextColor(0)
+         .text("Sistema Jean Daiben – generado automáticamente", 10, 30);
+
+      pdf.addImage(ctxBar.canvas.toDataURL(), 'PNG', 10, 40, 190, 70)
+         .text("Gráfico de barras", 75, 115);
+
+      pdf.addImage(ctxPie.canvas.toDataURL(), 'PNG', 35, 130, 140, 70)
+         .text("Gráfico de torta", 75, 205);
+
+      pdf.save(`reporte-${tipo}.pdf`);
+
+      barChart.destroy();
+      pieChart.destroy();
+    }
+  </script>
+
+</body>
+</html>
