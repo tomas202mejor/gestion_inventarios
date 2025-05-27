@@ -67,7 +67,7 @@ document.getElementById('formPrediccion').addEventListener('submit', function(e)
   .then(({ status, body }) => {
     if (status === 200 && body.prediccion !== undefined) {  // Cambié de prediccion_diaria a prediccion
       alertBox.classList.add('alert-success');
-      alertBox.textContent = `🔮 Demanda estimada para el día siguiente: ${body.prediccion} unidades`;  // Cambié de prediccion_diaria a prediccion
+      alertBox.textContent = `🔮 Demanda estimada para el siguiente mes: ${body.prediccion} unidades`;  // Cambié de prediccion_diaria a prediccion
     } else {
       alertBox.classList.add('alert-danger');
       alertBox.textContent = `❌ ${body.error || 'Error al obtener la predicción.'}`;

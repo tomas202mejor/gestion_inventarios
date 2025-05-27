@@ -2,6 +2,11 @@ import mysql.connector
 from mysql.connector import pooling
 import pymysql
 
+# config
+class Config:
+    SECRET_KEY = 'tu_clave_secreta_segura'
+    JWT_SECRET_KEY = 'tu_clave_jwt_super_segura'
+
 
 # Crear el pool una sola vez al importar el archivo
 dbconfig = {

@@ -7,7 +7,7 @@ from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 from db_config import get_db_connection
 
-# Añadimos utils al path para poder importar
+# Añadimos utils al path (molde) para poder importar
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'utils')))
 from entrenar_modelo_producto import entrenar_modelo_para_producto
 

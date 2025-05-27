@@ -8,11 +8,11 @@
     <div class="col-md-8">
         <h1>Inventario de Productos</h1>
     </div>
-    {% if session.get('usuario_rol') in ['admin'] %}
+    
     <div class="col-md-4 text-end">
         <a href="/productos/agregar" class="btn btn-primary">Agregar Producto</a>
     </div>
-    {% endif %}
+    
 </div>
 
 <div class="row mb-3">
@@ -45,9 +45,7 @@
                 <th>Cantidad</th>
                 <th>Tipo</th>
                 <th>Proveedor</th>
-                {% if session.get('usuario_rol') in ['admin'] %}
                 <th>Acciones</th>
-                {% endif %}
             </tr>
         </thead>
         <tbody id="productosTable">
@@ -165,12 +163,10 @@
                     <td>${producto.cantidad}</td>
                     <td>${producto.tipo || '-'}</td>
                     <td>${producto.proveedor || '-'}</td>
-                {% if session.get('usuario_rol') in ['admin'] %}
                     <td>
                         <a href="/productos/editar/${producto.id}" class="btn btn-sm btn-warning">Editar</a>
                         <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${producto.id})">Eliminar</button>
                     </td>
-                {% endif %}
                 `;
                 
                 productosTable.appendChild(row);

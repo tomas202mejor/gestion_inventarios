@@ -87,15 +87,15 @@
                 <hr />
                 <li class="nav-item"><a href="{{ url_for('api_pedidos.pedidos') }}" class="nav-link"><ion-icon name="cube-outline"></ion-icon> Pedidos</a></li>
                 <hr />
-                {% if session.get('usuario_rol') in ['admin'] %}
+               
                 <li class="nav-item"><a href="{{ url_for('prediccion') }}" class="nav-link"><ion-icon name="bar-chart-outline"></ion-icon> Predicción</a></li>
                 <hr />
-                {% endif %}
+                
                 <li class="nav-item"><a href="{{ url_for('ventas') }}" class="nav-link"><ion-icon name="cart-outline"></ion-icon> Ventas</a></li>
                 <hr />
                 <li class="nav-item"><a href="{{ url_for('notificaciones') }}" class="nav-link"><ion-icon name="notifications"></ion-icon> Notificaciones</a></li>
                 <hr />
-                <li class="nav-item"><a href="{{ url_for('api_login.logout') }}" class="nav-link text-danger"><ion-icon name="log-out-outline"></ion-icon> Cerrar sesión</a></li>
+                <a href="{{ url_for('logout') }}" class="nav-link text-danger"><ion-icon name="log-out-outline"></ion-icon> Cerrar sesión</a>
             </ul>
             <hr />
             <!-- Switch de modo oscuro -->
