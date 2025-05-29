@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sistema Jean Daiben - Reportes</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: #f6f6f6;
     }
-
     header {
       background-color: #007bff;
       color: white;
@@ -24,13 +24,11 @@
       justify-content: space-between;
       align-items: center;
     }
-
     header a {
       text-decoration: none;
       color: white;
       font-size: 1rem;
     }
-
     .btn {
       display: inline-block;
       padding: 0.5rem 1rem;
@@ -39,22 +37,8 @@
       font-weight: bold;
       cursor: pointer;
     }
-
-    .btn-stock {
-      color: #007bff;
-      border: 1px solid #007bff;
-    }
-
-    .btn-ventas {
-      color: #28a745;
-      border: 1px solid #28a745;
-    }
-
-    .btn-demanda {
-      color: #ffc107;
-      border: 1px solid #ffc107;
-    }
-
+    .btn-stock { color: #007bff; border: 1px solid #007bff; }
+    .btn-ventas { color: #28a745; border: 1px solid #28a745; }
     .btn-header {
       background-color: white;
       color: #007bff;
@@ -63,28 +47,23 @@
       border-radius: 5px;
       transition: background-color 0.3s;
     }
-
     .btn-header:hover {
       background-color: #e6e6e6;
     }
-
     .container {
       text-align: center;
       padding: 2rem;
     }
-
     h1 {
       font-size: 2rem;
       margin-bottom: 2rem;
     }
-
     .card-container {
       display: flex;
       justify-content: center;
       gap: 2rem;
       flex-wrap: wrap;
     }
-
     .card {
       background-color: white;
       border: 1px solid #ddd;
@@ -94,23 +73,41 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       text-align: center;
     }
-
     .card h2 {
       margin-top: 1rem;
       font-size: 1.2rem;
     }
-
     .card p {
       margin: 1rem 0;
       color: #555;
     }
-
     .btn:hover {
       background-color: rgba(0,0,0,0.05);
     }
-
     canvas {
       display: none;
+    }
+    #tabla-container {
+      max-width: 600px;
+      margin: 3rem auto;
+      background-color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
     }
   </style>
 </head>
@@ -123,9 +120,7 @@
 
   <div class="container">
     <h1>Bienvenido al Sistema de Reportes Jean Daiben</h1>
-    
     <div class="card-container">
-
       <div class="card">
         <img src="https://img.icons8.com/fluency-systems-regular/48/007bff/warehouse.png"/>
         <h2>Reporte Stock</h2>
@@ -139,42 +134,89 @@
         <p>Visualiza las estadísticas de ventas realizadas.</p>
         <button onclick="generarPDF('ventas')" class="btn btn-ventas">Descargar Reporte Ventas</button>
       </div>
-
-      <div class="card">
-        <img src="https://img.icons8.com/fluency-systems-regular/48/ffc107/combo-chart.png"/>
-        <h2>Reporte Demanda</h2>
-        <p>Análisis de la demanda y tendencias de productos.</p>
-        <button onclick="generarPDF('demanda')" class="btn btn-demanda">Descargar Reporte Demanda</button>
-      </div>
-
     </div>
   </div>
 
-  <!-- Canvases ocultos para capturar gráficos -->
-  <canvas id="barChart" width="400" height="300"></canvas>
+  <div id="tabla-container" style="display:none;">
+    <h2 id="tabla-titulo">Tabla de Datos</h2>
+    <table id="tabla-datos">
+      <thead>
+        <tr><th>Etiqueta</th><th>cantidad</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <canvas id="barChart" width="600" height="300"></canvas>
   <canvas id="pieChart" width="400" height="300"></canvas>
 
   <script>
-    async function generarPDF(tipo) {
-      const { jsPDF } = window.jspdf;
+    let barChart, pieChart;
 
-      const resp = await fetch(`/api/reportes/${tipo}`);
-      const result = await resp.json();
+    async function generarPDF(tipo) {
+      const jsPDFModule = window.jspdf;
+      const jsPDF = jsPDFModule.jsPDF;
+
+      const response = await fetch(`/api/reportes/${tipo}`);
+      const result = await response.json();
+
       const labels = result.labels;
       const data = result.data;
+      const codigo = result.codigo_reporte;
 
+      // Mostrar tabla
+      const tablaContainer = document.getElementById('tabla-container');
+      const tbody = document.getElementById('tabla-datos').querySelector('tbody');
+      const tituloTabla = document.getElementById('tabla-titulo');
+      tituloTabla.innerText = `Tabla de Reporte ${tipo.toUpperCase()}`;
+      tbody.innerHTML = '';
+      labels.forEach((label, index) => {
+        tbody.innerHTML += `<tr><td>${label}</td><td>${data[index]}</td></tr>`;
+      });
+      tablaContainer.style.display = 'block';
+
+      // Bar Chart con datalabels
       const ctxBar = document.getElementById('barChart').getContext('2d');
-      const barChart = new Chart(ctxBar, {
+      if (barChart) barChart.destroy();
+      barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
           labels: labels,
-          datasets: [{ label: `Reporte ${tipo}`, data: data, backgroundColor: '#007bff' }]
+          datasets: [{
+            label: `Reporte ${tipo}`,
+            data: data,
+            backgroundColor: '#007bff'
+          }]
         },
-        options: { animation:false, responsive:false, plugins:{ legend:{ display:false }} }
+        options: {
+          animation: false,
+          responsive: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              anchor: 'end',
+              align: 'end',
+              color: '#000',
+              font: { weight: 'bold' },
+              formatter: value => value
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                rotation: 90,
+                autoSkip: false
+              }
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
       });
 
+      // Pie Chart sin datalabels
       const ctxPie = document.getElementById('pieChart').getContext('2d');
-      const pieChart = new Chart(ctxPie, {
+      if (pieChart) pieChart.destroy();
+      pieChart = new Chart(ctxPie, {
         type: 'pie',
         data: {
           labels: labels,
@@ -185,23 +227,66 @@
             ]
           }]
         },
-        options: { animation:false, responsive:false }
+        options: {
+          animation: false,
+          responsive: false,
+          layout: {
+            padding: { top: 20, bottom: 20 }
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                boxWidth: 20,
+                padding: 20
+              }
+            }
+          }
+        }
       });
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500)); // esperar renderizado
 
-      const pdf = new jsPDF();
-      pdf.setFontSize(22).setTextColor('#007bff')
-         .text(`REPORTE ${tipo.toUpperCase()}`, 50, 20);
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-      pdf.setFontSize(12).setTextColor(0)
-         .text("Sistema Jean Daiben – generado automáticamente", 10, 30);
+      // Encabezado
+      pdf.setFillColor(0, 123, 255);
+      pdf.rect(0, 0, 210, 20, 'F');
+      pdf.setFontSize(16).setTextColor(255).setFont('helvetica', 'bold');
+      pdf.text(`REPORTE ${tipo.toUpperCase()}`, 105, 12, { align: 'center' });
 
-      pdf.addImage(ctxBar.canvas.toDataURL(), 'PNG', 10, 40, 190, 70)
-         .text("Gráfico de barras", 75, 115);
+      pdf.setTextColor(0).setFontSize(10);
+      pdf.text(`Código: ${codigo}`, 10, 28);
+      pdf.text("Sistema Jean Daiben – generado automáticamente", 10, 34);
 
-      pdf.addImage(ctxPie.canvas.toDataURL(), 'PNG', 35, 130, 140, 70)
-         .text("Gráfico de torta", 75, 205);
+      // Gráficos
+      pdf.addImage(document.getElementById('barChart').toDataURL(), 'PNG', 10, 40, 190, 70);
+      pdf.text("Gráfico de Barras", 105, 112, { align: "center" });
+
+      pdf.addImage(document.getElementById('pieChart').toDataURL(), 'PNG', 35, 120, 140, 70);
+      pdf.text("Gráfico de Torta", 105, 195, { align: "center" });
+
+      // Tabla
+      const rows = labels.map((label, index) => [label, data[index]]);
+      pdf.autoTable({
+        startY: 205,
+        head: [['Etiqueta', 'cantidad']],
+        body: rows,
+        styles: { fontSize: 10, halign: 'center' },
+        headStyles: { fillColor: [0, 123, 255], textColor: 255 }
+      });
+
+      // Resumen
+      const total = data.reduce((acc, val) => acc + val, 0);
+      const promedio = (total / data.length).toFixed(2);
+      const finalY = pdf.lastAutoTable.finalY + 10;
+
+      pdf.setFontSize(11).setTextColor(0);
+      pdf.text(`Resumen de Datos`, 14, finalY);
+      pdf.setFontSize(10);
+      pdf.text(`Total: ${total}`, 14, finalY + 6);
+      pdf.text(`Promedio: ${promedio}`, 14, finalY + 12);
+      pdf.text(`Cantidad de registros: ${data.length}`, 14, finalY + 18);
 
       pdf.save(`reporte-${tipo}.pdf`);
 
