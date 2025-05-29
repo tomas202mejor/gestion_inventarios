@@ -15,6 +15,7 @@ from routes.api_login import api_login
 from routes.api_dashboard import api_dashboard
 from routes.api_pedidos import api_pedidos
 from routes.api_clientes import api_clientes
+from routes.api_reportes import api_reportes
 
 app = Flask(__name__)
 app.secret_key = 'tu_clave_secreta_segura'  # Para sesiones tradicionales
@@ -33,6 +34,7 @@ app.register_blueprint(api_ventas)
 app.register_blueprint(api_dashboard)
 app.register_blueprint(api_prediccion)
 app.register_blueprint(api_clientes)
+app.register_blueprint(api_reportes)
 # api_login con prefijo /api para separar rutas API y rutas frontend
 app.register_blueprint(api_login, url_prefix='/api')
 
