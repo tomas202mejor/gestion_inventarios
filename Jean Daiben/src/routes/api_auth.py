@@ -20,9 +20,9 @@ def api_login():
         return jsonify({'message': 'Email y contraseña son requeridos'}), 400
 
     user = obtener_usuario_por_email(email)
-    if user and user['Activo']:
+    if user and user.get('Activo'):
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
-        if hashed_password == user['ContrasenaHash']:
+        if hashed_password == user.get('ContrasenaHash'):
             actualizar_ultimo_acceso(user['UsuarioID'])
             access_token = create_access_token(identity=user['UsuarioID'], expires_delta=timedelta(hours=1))
 
@@ -30,8 +30,8 @@ def api_login():
                 'token': access_token,
                 'usuario': {
                     'id': user['UsuarioID'],
-                    'nombre': user['Nombre'],
-                    'rol': user['Rol']
+                    'nombre': user.get('Nombre', ''),
+                    'rol': user.get('Rol', '')
                 }
             }), 200
 

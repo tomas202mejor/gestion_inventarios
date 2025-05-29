@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from flask import request, jsonify
 from functools import wraps
 
-# Mejor usar variable de entorno para mayor seguridad
+# Leer clave secreta desde variable de entorno para seguridad
 SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'tu_clave_jwt_segura')
 
 def generar_token(usuario_id, nombre, rol, expiracion=60):
@@ -18,7 +18,6 @@ def generar_token(usuario_id, nombre, rol, expiracion=60):
         'exp': datetime.utcnow() + timedelta(minutes=expiracion)
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-    # En pyjwt 2.x devuelve str, en pyjwt 1.x bytes; para compatibilidad:
     if isinstance(token, bytes):
         token = token.decode('utf-8')
     return token
@@ -30,13 +29,16 @@ def verificar_token(token):
     try:
         return jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
+        # Token expirado
         return None
     except jwt.InvalidTokenError:
+        # Token inválido
         return None
 
 def login_requerido(f):
     """
-    Decorador para proteger rutas, validando token JWT en Authorization header.
+    Decorador para proteger rutas Flask, valida token JWT en header Authorization.
+    Si el token es válido, añade 'usuario' al objeto request.
     """
     @wraps(f)
     def decorador(*args, **kwargs):

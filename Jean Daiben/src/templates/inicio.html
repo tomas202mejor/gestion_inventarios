@@ -1,17 +1,467 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Jean Daiben</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+        }
+        
+        .header {
+            background-color: #0d6efd;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-right: 30px;
+        }
+        
+        .header-link {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-link i {
+            margin-right: 5px;
+        }
+        
+        .container-fluid {
+            padding: 20px;
+        }
+        
+        .welcome-title {
+            text-align: center;
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 40px;
+        }
+        
+        .cards-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .card {
+            flex-basis: calc(25% - 20px);
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .card-description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 6px 12px;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            border: 1px solid;
+            transition: all 0.3s;
+        }
+        
+        .btn-home {
+            color: #1a73e8;
+            border-color: #1a73e8;
+            background-color: white;
+        }
+        
+        .btn-dashboard {
+            color: #28a745;
+            border-color: #28a745;
+            background-color: white;
+        }
+        
+        .btn-inventory {
+            color: #ffc107;
+            border-color: #ffc107;
+            background-color: white;
+        }
+        
+        .btn-prediction {
+            color: #dc3545;
+            border-color: #dc3545;
+            background-color: white;
+        }
+        
+        .btn-pedidos {
+            color: #6610f2;
+            border-color: #6610f2;
+            background-color: white;
+        }
+        
+        .btn-ventas {
+            color: #fd7e14;
+            border-color: #fd7e14;
+            background-color: white;
+        }
+        
+        .btn-notificaciones {
+            color: #20c997;
+            border-color: #20c997;
+            background-color: white;
+        }
 
-{% block title %}Inicio{% endblock %}
+        .btn-reportes {
+            color: #17a2b8;
+            border-color: #17a2b8;
+            background-color: white;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            background-color: #f8f9fa;
+            margin-top: 20px;
+        }
+        
+        .home-icon { color: #1a73e8; }
+        .dashboard-icon { color: #28a745; }
+        .inventory-icon { color: #ffc107; }
+        .prediction-icon { color: #dc3545; }
+        .orders-icon { color: #6610f2; }
+        .sales-icon { color: #fd7e14; }
+        .notifications-icon { color: #20c997; }
+        .reportes-icon {color: #20c997;; }
+        
+        /* Sidebar styles */
+        #sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            transition: all 0.3s;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 1000;
+            overflow-y: auto;
+            border-right: 1px solid #dee2e6;
+        }
+        
+        #sidebar.collapsed {
+            margin-left: -250px;
+        }
+        
+        main {
+            margin-left: 250px;
+            transition: all 0.3s;
+            width: calc(100% - 250px);
+        }
+        
+        main.expanded {
+            margin-left: 0;
+            width: 100%;
+        }
+        
+        .toggle-sidebar-btn {
+            position: fixed;
+            left: 250px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+        
+        .toggle-sidebar-btn.collapsed {
+            left: 0;
+        }
+        
+        /* Switch personalizado */
+        .switch {
+            width: 40px;
+            height: 20px;
+            background-color: #adb5bd;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .switch::before {
+            content: "";
+            width: 18px;
+            height: 18px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            transition: transform 0.3s;
+        }
+        
+        .switch.activo {
+            background-color: #0d6efd;
+        }
+        
+        .switch.activo::before {
+            transform: translateX(20px);
+        }
+        
+        /* Estilos para modo oscuro */
+        body.modo-oscuro {
+            background-color: #121212 !important;
+            color: #f1f1f1 !important;
+        }
+        
+        body.modo-oscuro a {
+            color: #f1f1f1 !important;
+        }
+        
+        body.modo-oscuro .bg-light,
+        body.modo-oscuro #sidebar {
+            background-color: #1e1e1e !important;
+            color: #f1f1f1 !important;
+        }
+        
+        body.modo-oscuro .card {
+            background-color: #333 !important;
+            color: #f1f1f1 !important;
+        }
+        
+        body.modo-oscuro .card-title,
+        body.modo-oscuro .card-description {
+            color: #f1f1f1 !important;
+        }
+        
+        body.modo-oscuro .nav-link {
+            color: #f1f1f1 !important;
+        }
+        
+        body.modo-oscuro footer {
+            background-color: #1e1e1e !important;
+            color: #f1f1f1 !important;
+        }
+        body.modo-oscuro .card .btn {
+            background-color: #444 !important; /* Fondo gris oscuro */
+            color: #fff !important;            /* Texto blanco */
+            border: 1px solid #666 !important; /* Borde visible */
+        }
+    </style>
+</head>
+<body class="bg-white text-dark">
+    <!-- Sidebar Toggle Button -->
+    <button id="toggleSidebar" class="toggle-sidebar-btn">
+        <span id="toggleIcon">◀</span>
+    </button>
 
-{% block content %}
-<main class="p-4">
-    <h1 class="mb-4">Contenido de la Página de Inicio</h1>
-    <!-- Agrega aquí el contenido relevante para la página de inicio -->
-</main>
-{% endblock %}
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-light p-3">
+            <div class="text-center mb-4">
+                <h4>JEAN DAIBEN</h4>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a href="/inicio" class="nav-link"><ion-icon name="home-outline"></ion-icon> Home</a></li>
+                <hr />
+                <li class="nav-item"><a href="/dashboard_ventas" class="nav-link"><ion-icon name="clipboard-outline"></ion-icon> Dashboard</a></li>
+                <hr />
+                <li class="nav-item"><a href="/productos" class="nav-link"><ion-icon name="briefcase-outline"></ion-icon> Inventario</a></li>
+                <hr />
+                <li class="nav-item"><a href="/agregar_cliente" class="nav-link"><ion-icon name="person-outline"></ion-icon> Clientes</a></li>
+                <hr />
+                <li class="nav-item"><a href="/pedidos" class="nav-link"><ion-icon name="cube-outline"></ion-icon> Pedidos</a></li>
+                <hr />
+                <li class="nav-item"><a href="/prediccion" class="nav-link"><ion-icon name="bar-chart-outline"></ion-icon> Predicción</a></li>
+                <hr />
+                <li class="nav-item"><a href="/ventas" class="nav-link"><ion-icon name="cart-outline"></ion-icon> Ventas</a></li>
+                <hr />
+                <li class="nav-item"><a href="/notificaciones" class="nav-link"><ion-icon name="notifications"></ion-icon> Notificaciones</a></li>
+                <hr />
+                <li class="nav-item"><a href="/reportes" class="nav-link"><ion-icon name="document-text-outline"></ion-icon> Reportes</a></li>
+                 <hr />
+                <li class="nav-item"><a href="/logout" class="nav-link text-danger"><ion-icon name="log-out-outline"></ion-icon> Cerrar sesión</a></li>
+            </ul>
+            <hr />
+            <!-- Switch de modo oscuro -->
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <ion-icon name="moon"></ion-icon>
+                    <span class="ms-2">Dark Mode</span>
+                </div>
+                <div id="switchModoOscuro" class="switch"></div>
+            </div>
+        </aside>
 
-{% block scripts %}
-<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-<script src="/Jean Daiben/static/js/script_inicio.js"></script>
-{% endblock %}
+        <!-- Contenido principal -->
+        <main id="main">
+            <div class="header">
+                <div class="header-title">    JEAN DAIBEN</div>
+                <div class="position-relative">
+                    <button type="button" class="btn btn-light" id="notificacionesBtn" data-bs-toggle="popover" title="Alertas de Stock Bajo" data-bs-html="true" data-bs-content="Cargando...">
+                        🔔
+                        <span id="badgeCantidad" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="container-fluid">
+                <h1 class="welcome-title">Bienvenido al Sistema de Gestión Jean Daiben</h1>
+                
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-icon home-icon">
+                            <ion-icon name="person-outline" size="large"></ion-icon>
+                        </div>
+                        <h3 class="card-title">Clientes</h3>
+                        <p class="card-description">Agregar cliente </p>
+                        <a href="/agregar_cliente" class="btn btn-home"> Crear un cliente</a>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon dashboard-icon">
+                            <ion-icon name="clipboard-outline" size="large"></ion-icon>
+                        </div>
+                        <h3 class="card-title">Dashboard</h3>
+                        <p class="card-description">Estadísticas y gráficos del sistema.</p>
+                        <a href="/dashboard_ventas" class="btn btn-dashboard">Ir a Dashboard</a>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon inventory-icon">
+                            <ion-icon name="briefcase-outline" size="large"></ion-icon>
+                        </div>
+                        <h3 class="card-title">Inventario</h3>
+                        <p class="card-description">Gestión de productos e inventario.</p>
+                        <a href="/productos" class="btn btn-inventory">Ir a Inventario</a>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon prediction-icon">
+                            <ion-icon name="bar-chart-outline" size="large"></ion-icon>
+                        </div>
+                        <h3 class="card-title">Predicción</h3>
+                        <p class="card-description">Análisis y predicción de datos.</p>
+                        <a href="/prediccion" class="btn btn-prediction">Ir a Predicción</a>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon orders-icon">
+                            <ion-icon name="cube-outline" size="large"></ion-icon>
+                        </div>
+                        <h3 class="card-title">Pedidos</h3>
+                        <p class="card-description">Gestión de pedidos del sistema.</p>
+                        <a href="/pedidos" class="btn btn-pedidos">Ir a Pedidos</a>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon sales-icon">
+                            <ion-icon name="cart-outline" size="large"></ion-icon>
+                        </div>
+                        <h3 class="card-title">Ventas</h3>
+                        <p class="card-description">Registro y consulta de ventas.</p>
+                        <a href="/ventas" class="btn btn-ventas">Ir a Ventas</a>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-icon notifications-icon">
+                            <ion-icon name="notifications" size="large"></ion-icon>
+                        </div>
+                        <h3 class="card-title">Notificaciones</h3>
+                        <p class="card-description">Alertas y notificaciones del sistema.</p>
+                        <a href="/notificaciones" class="btn btn-notificaciones">Ir a Notificaciones</a>
+                    </div>
 
+                    <div class="card">
+                        <div class="card-icon reports-icon">
+                            <ion-icon name="document-text-outline" size="large"></ion-icon>
+                        </div>
+                        <h3 class="card-title">Reportes</h3>
+                        <p class="card-description">Generación y consulta de reportes.</p>
+                        <a href="/reportes" class="btn btn-reportes">Ir a Reportes</a>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="footer">
+                Jean Daiben © 2025 - Sistema de Inventario
+            </footer>
+        </main>
+    </div>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Notificaciones
+            fetch('/api/notificaciones/stock-bajo')
+                .then(res => res.json())
+                .then(data => {
+                    const badge = document.getElementById('badgeCantidad');
+                    const btn = document.getElementById('notificacionesBtn');
+
+                    if (data.stock_bajo && data.stock_bajo.length > 0) {
+                        badge.textContent = data.stock_bajo.length;
+                        badge.classList.remove('d-none');
+                        const lista = data.stock_bajo.map(p => `<div>🔻 ${p.nombre} (Cantidad: ${p.cantidad})</div>`).join('');
+                        btn.setAttribute('data-bs-content', lista);
+                    } else {
+                        btn.setAttribute('data-bs-content', 'No hay alertas de stock bajo.');
+                    }
+
+                    new bootstrap.Popover(btn);
+                });
+
+            // Modo Oscuro
+            const switchBtn = document.getElementById('switchModoOscuro');
+            const body = document.body;
+
+            if (localStorage.getItem('modoOscuro') === 'true') {
+                activarModoOscuro();
+            }
+
+            switchBtn.addEventListener('click', () => {
+                body.classList.toggle('modo-oscuro');
+                switchBtn.classList.toggle('activo');
+                localStorage.setItem('modoOscuro', body.classList.contains('modo-oscuro'));
+            });
+
+            function activarModoOscuro() {
+                body.classList.add('modo-oscuro');
+                switchBtn.classList.add('activo');
+            }
+        });
+    </script>
+</body

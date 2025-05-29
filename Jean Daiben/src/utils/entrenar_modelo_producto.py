@@ -1,17 +1,12 @@
-# Importamos librerías necesarias
 import pandas as pd
 import numpy as np
-import mysql.connector
-from db_config import get_db_connection
+import os
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.losses import MeanSquaredError
-import os
 
-# Función para entrenar un modelo de predicción de demanda mensual para un producto específico
-def entrenar_modelo_para_producto(producto_id, conn, secuencia=6, carpeta_modelos='modelos'):
-    # Consulta SQL para obtener las cantidades vendidas por fecha del producto
+def entrenar_modelo_para_producto(producto_id, conn, secuencia=6, carpeta_modelos='predict_demand'):
     query = """
         SELECT 
             DATE(V.Fecha) AS Fecha,
@@ -28,16 +23,21 @@ def entrenar_modelo_para_producto(producto_id, conn, secuencia=6, carpeta_modelo
         print(f"No hay datos para entrenar el modelo del producto {producto_id}")
         return False
 
-    # Convertimos a tipo datetime y agrupamos por mes
     df['Fecha'] = pd.to_datetime(df['Fecha'])
     df.set_index('Fecha', inplace=True)
-    df = df.resample('M').sum().fillna(0)  # Agrupación mensual
+    df = df.resample('M').sum().fillna(0)  # Agrupamos por mes
 
-    if len(df) < secuencia + 1:
-        print(f"No hay suficientes datos mensuales para entrenar el modelo del producto {producto_id}")
+    if len(df) <= 0:
+        print(f"No hay datos mensuales para entrenar el modelo del producto {producto_id}")
         return False
 
-    # Serie de ventas mensuales
+    promedio_mensual = df['TotalVendido'].mean()
+    print(f"Promedio mensual para el producto {producto_id}: {promedio_mensual:.2f} unidades")
+
+    if len(df) < secuencia + 1:
+        print(f"No hay suficientes datos para entrenar la secuencia LSTM para producto {producto_id}")
+        return False
+
     serie = df['TotalVendido'].values.astype('float32')
     X, y = [], []
     for i in range(len(serie) - secuencia):
@@ -46,7 +46,6 @@ def entrenar_modelo_para_producto(producto_id, conn, secuencia=6, carpeta_modelo
     X = np.array(X).reshape(-1, secuencia, 1)
     y = np.array(y)
 
-    # Modelo LSTM
     model = Sequential([
         LSTM(50, activation='relu', input_shape=(X.shape[1], 1)),
         Dense(1)
@@ -55,7 +54,8 @@ def entrenar_modelo_para_producto(producto_id, conn, secuencia=6, carpeta_modelo
     model.fit(X, y, epochs=100, verbose=0, callbacks=[EarlyStopping(patience=10, restore_best_weights=True)])
 
     os.makedirs(carpeta_modelos, exist_ok=True)
-    model.save(os.path.join(carpeta_modelos, f'modelo_producto_{producto_id}.h5'))
+    modelo_path = os.path.join(carpeta_modelos, f'modelo_producto_{producto_id}.h5')
+    model.save(modelo_path)
 
-    print(f"Modelo mensual entrenado y guardado para producto {producto_id}")
+    print(f"Modelo mensual entrenado y guardado para producto {producto_id} en {modelo_path}")
     return True

@@ -1,0 +1,54 @@
+ {% extends 'layout.html' %}
+
+{% block title %}Agregar Cliente{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">Nuevo Cliente</h2>
+
+<form action="/clientes/agregar" method="POST" class="row gx-4 gy-3 mb-5">
+ <div class="col-12">
+  <label for="nombre" class="form-label fw-semibold">Nombre completo</label>
+  <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ej: Juan Pérez" required oninput="this.value = this.value.replace(/[0-9]/g, '')">
+</div>
+
+  
+ <div class="col-md-6">
+  <label for="tipo_cliente" class="form-label fw-semibold">Tipo de Cliente</label>
+  <select id="tipo_cliente" name="tipo_cliente" class="form-select" required>
+    <option value="" disabled selected>Seleccione tipo de cliente</option>
+    <option value="normal">Normal</option>
+    <option value="corporativo">Corporativo</option>
+    <option value="mayorista">Mayorista</option>
+  </select>
+</div>
+<div class="col-md-6">
+  <label for="ruc" class="form-label fw-semibold">RUC</label>
+  <input type="text" id="ruc" name="ruc" class="form-control" placeholder="Número de RUC" required oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+</div>
+
+
+  <div class="col-md-6">
+    <label for="telefono" class="form-label fw-semibold">Teléfono</label>
+    <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="999 999 999" required oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+  </div>
+
+  <div class="col-12">
+    <label for="direccion" class="form-label fw-semibold">Dirección</label>
+    <input type="text" id="direccion" name="direccion" class="form-control" placeholder="Av. Principal 123" required>
+  </div>
+
+<div class="col-12">
+  <label for="email" class="form-label fw-semibold">Correo electrónico</label>
+  <input type="email" id="email" name="email" class="form-control" placeholder="Ej: usuario@gmail.com" required>
+</div>
+
+
+  
+
+  <div class="col-12 d-flex justify-content-end">
+    <button type="submit" class="btn btn-success px-4">Agregar</button>
+  </dissv>
+</form> 
+
+{% endblock %}

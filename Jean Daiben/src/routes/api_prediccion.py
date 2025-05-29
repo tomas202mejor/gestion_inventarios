@@ -4,66 +4,75 @@ import sys
 import numpy as np
 import pandas as pd
 from keras.models import load_model
-from sklearn.preprocessing import MinMaxScaler
+from keras.losses import MeanSquaredError
 from db_config import get_db_connection
 
-# Añadimos utils al path (molde) para poder importar
+# Añadir carpeta utils al path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'utils')))
 from entrenar_modelo_producto import entrenar_modelo_para_producto
 
-# Definimos el blueprint con prefijo /api
+# Definir blueprint
 api_prediccion = Blueprint('api_prediccion', __name__, url_prefix='/api')
 
 @api_prediccion.route('/prediccion', methods=['POST'])
 def prediccion_api():
-    producto_id = request.form.get('producto_id')
+    # Leer producto_id desde JSON correctamente
+    data = request.get_json()
+    print("request.get_json():", data)
+
+    producto_id = data.get('producto_id') if data else None
+    print(f"producto_id recibido: {producto_id}")
 
     if not producto_id:
         return jsonify({'error': 'Producto no especificado'}), 400
 
     conn = get_db_connection()
-    try:
-        modelo_path = f'modelos/modelo_producto_{producto_id}.h5'
 
-        # Entrenar si no existe
+    try:
+        # Ruta del modelo
+        modelo_dir = 'predict_demand'
+        modelo_path = os.path.join(modelo_dir, f'modelo_producto_{producto_id}.h5')
+
+        # Entrenar modelo si no existe
         if not os.path.exists(modelo_path):
-            exito = entrenar_modelo_para_producto(producto_id, conn)
+            exito = entrenar_modelo_para_producto(producto_id, conn, carpeta_modelos=modelo_dir)
             if not exito:
                 return jsonify({'error': 'No hay suficientes datos para entrenar el modelo'}), 400
 
         # Cargar modelo
-        from keras.losses import MeanSquaredError
         modelo = load_model(modelo_path, compile=False)
         modelo.compile(optimizer='adam', loss=MeanSquaredError())
 
-        # Obtener ventas diarias recientes
+        # Obtener ventas mensuales recientes
         query = """
-            SELECT Fecha, Cantidad
-            FROM Ventas V
-            JOIN DetalleVentas DV ON V.VentaID = DV.VentaID
+            SELECT 
+                DATE(V.Fecha) AS Fecha,
+                SUM(DV.Cantidad) AS TotalVendido
+            FROM DetalleVentas DV
+            INNER JOIN Ventas V ON DV.VentaID = V.VentaID
             WHERE DV.ProductoID = %s
-            ORDER BY Fecha
+            GROUP BY Fecha
+            ORDER BY Fecha;
         """
         df = pd.read_sql(query, conn, params=(producto_id,))
 
         if df.empty:
             return jsonify({'error': 'No hay ventas recientes para el producto'}), 400
 
+        # Preprocesamiento
         df['Fecha'] = pd.to_datetime(df['Fecha'])
         df.set_index('Fecha', inplace=True)
-        df = df.resample('D').sum().fillna(0)  # ventas por día
+        df = df.resample('M').sum().fillna(0)
 
-        # Escalado
-        scaler = MinMaxScaler()
-        datos = scaler.fit_transform(df[['Cantidad']])
-
-        ventana = 7
-        if len(datos) < ventana:
+        secuencia = 6
+        if len(df) < secuencia:
             return jsonify({'error': 'No hay suficientes datos recientes para predecir'}), 400
 
-        X_pred = np.array([datos[-ventana:]])
-        prediccion = modelo.predict(X_pred)
-        valor = float(scaler.inverse_transform(prediccion)[0][0])
+        serie = df['TotalVendido'].values.astype('float32')
+        datos_entrada = serie[-secuencia:].reshape(1, secuencia, 1)
+
+        prediccion = modelo.predict(datos_entrada)
+        valor = float(prediccion[0][0])
 
         return jsonify({'prediccion': round(valor, 2)})
 

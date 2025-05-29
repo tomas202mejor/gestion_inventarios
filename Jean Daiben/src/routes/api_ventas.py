@@ -463,7 +463,7 @@ def enviar_factura_api(factura_id):
             server.sendmail(smtp_user, email_destino, text)
             server.quit()
             
-            # Actualizar el estado de la factura a "enviado"
+            # Actualizar el estado de la factura a "enviada"
             cursor.execute("""
             UPDATE Facturas
             SET Estado = 'enviado'

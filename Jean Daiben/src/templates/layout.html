@@ -83,19 +83,25 @@
                 <hr />
                 <li class="nav-item"><a href="{{ url_for('dashboard_ventas') }}" class="nav-link"><ion-icon name="clipboard-outline"></ion-icon> Dashboard</a></li>
                 <hr />
+                <li class="nav-item"><a href="{{ url_for('agregar_cliente') }}" class="nav-link"><ion-icon name="person-outline"></ion-icon> Clientes</a></li>
+                <hr />
                 <li class="nav-item"><a href="/productos" class="nav-link"><ion-icon name="briefcase-outline"></ion-icon> Inventario</a></li>
                 <hr />
                 <li class="nav-item"><a href="{{ url_for('api_pedidos.pedidos') }}" class="nav-link"><ion-icon name="cube-outline"></ion-icon> Pedidos</a></li>
                 <hr />
-               
+                {% if session.get('usuario_rol') in ['admin'] %}
                 <li class="nav-item"><a href="{{ url_for('prediccion') }}" class="nav-link"><ion-icon name="bar-chart-outline"></ion-icon> Predicción</a></li>
                 <hr />
-                
+                {% endif %}
+                <li class="nav-item"><a href="{{ url_for('reportes') }}" class="nav-link"><ion-icon name="document-text-outline"></ion-icon> Reportes</a></li>
+                <hr />
                 <li class="nav-item"><a href="{{ url_for('ventas') }}" class="nav-link"><ion-icon name="cart-outline"></ion-icon> Ventas</a></li>
                 <hr />
                 <li class="nav-item"><a href="{{ url_for('notificaciones') }}" class="nav-link"><ion-icon name="notifications"></ion-icon> Notificaciones</a></li>
                 <hr />
-                <a href="{{ url_for('logout') }}" class="nav-link text-danger"><ion-icon name="log-out-outline"></ion-icon> Cerrar sesión</a>
+                <li class="nav-item"><a href="{{ url_for('reportes') }}" class="nav-link"><ion-icon name="document-text-outline"></ion-icon> Reportes</a></li>
+                <hr />
+                <li class="nav-item"><a href="{{ url_for('api_login.logout') }}" class="nav-link text-danger"><ion-icon name="log-out-outline"></ion-icon> Cerrar sesión</a></li>
             </ul>
             <hr />
             <!-- Switch de modo oscuro -->

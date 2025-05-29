@@ -38,11 +38,10 @@
 document.getElementById('formPrediccion').addEventListener('submit', function(e) {
   e.preventDefault();
 
-  const productoId = document.getElementById('producto_id').value;
+  const productoId = Number(document.getElementById('producto_id').value);
   const resultadoCont = document.getElementById('resultado');
   const alertBox = document.getElementById('alertResultado');
 
-  // Validación adicional antes de enviar
   if (!productoId || productoId <= 0) {
     alertBox.classList.add('alert-danger');
     alertBox.textContent = '❌ El ID del producto debe ser un número válido.';
@@ -50,24 +49,21 @@ document.getElementById('formPrediccion').addEventListener('submit', function(e)
     return;
   }
 
-  // Limpiar el área de resultados antes de la nueva predicción
   resultadoCont.classList.add('d-none');
   alertBox.className = 'alert';
 
-  // URL de la API de predicción (se puede configurar más tarde para producción)
-  const apiUrl = 'http://localhost:5000/api/prediccion';  // Asegúrate de que la URL sea correcta
+  const apiUrl = 'http://localhost:5000/api/prediccion';
 
-  // Realizar la solicitud de predicción
   fetch(apiUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ producto_id: productoId })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ producto_id: productoId })
   })
   .then(res => res.json().then(body => ({ status: res.status, body })))
   .then(({ status, body }) => {
-    if (status === 200 && body.prediccion !== undefined) {  // Cambié de prediccion_diaria a prediccion
+    if (status === 200 && body.prediccion !== undefined) {
       alertBox.classList.add('alert-success');
-      alertBox.textContent = `🔮 Demanda estimada para el siguiente mes: ${body.prediccion} unidades`;  // Cambié de prediccion_diaria a prediccion
+      alertBox.textContent = `🔮 Demanda estimada para el siguiente mes: ${body.prediccion} unidades`;
     } else {
       alertBox.classList.add('alert-danger');
       alertBox.textContent = `❌ ${body.error || 'Error al obtener la predicción.'}`;
