@@ -71,78 +71,352 @@
             background-color: #444 !important;
             color: #fff !important;
         }
+
+        body.modo-oscuro .offcanvas {
+            background-color: #1e1e1e !important;
+            color: #f1f1f1 !important;
+        }
+
+        body.modo-oscuro .offcanvas-header {
+            border-bottom-color: #444 !important;
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 991.98px) {
+            #sidebar {
+                display: none !important;
+            }
+            
+            .main-content {
+                width: 100% !important;
+            }
+            
+            .navbar-toggler {
+                order: -1;
+                margin-right: 10px;
+            }
+            
+            .navbar-brand {
+                flex-grow: 1;
+                text-align: center;
+            }
+            
+            .notification-container {
+                position: static !important;
+                margin-left: auto;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .mobile-menu-btn {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 250px;
+            }
+            
+            #sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1000;
+            }
+        }
+
+        /* Ajustes para el contenido principal */
+        .main-content {
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Estilos para el offcanvas */
+        .offcanvas-nav .nav-link {
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(0,0,0,.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .offcanvas-nav .nav-link ion-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        /* Ajustes para botones de notificación */
+        .notification-container {
+            z-index: 1050;
+        }
+
+        #notificacionesBtn {
+            position: relative;
+        }
+
+        /* Mejoras para iconos */
+        .nav-link ion-icon {
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+
+        /* Estilos para las cards del dashboard */
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border-radius: 12px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+        }
+
+        .card-body {
+            padding: 2rem !important;
+        }
+
+        .btn-outline-purple:hover {
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+            color: white;
+        }
+
+        .btn-outline-pink:hover {
+            background-color: #e83e8c;
+            border-color: #e83e8c;
+            color: white;
+        }
+
+        /* Responsive para las cards */
+        @media (max-width: 576px) {
+            .card-body {
+                padding: 1.5rem !important;
+            }
+            
+            .card-body ion-icon {
+                font-size: 2.5rem !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-white text-dark">
 
-    <div class="d-flex">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="bg-light border-end p-3" style="width: 250px; min-height: 100vh;">
-            <ul class="nav flex-column">
-                <li class="nav-item"><a href="{{ url_for('inicio') }}" class="nav-link"><ion-icon name="home-outline"></ion-icon> Home</a></li>
-                <hr />
-                <li class="nav-item"><a href="{{ url_for('dashboard_ventas') }}" class="nav-link"><ion-icon name="clipboard-outline"></ion-icon> Dashboard</a></li>
-                <hr />
-                <li class="nav-item"><a href="{{ url_for('agregar_cliente') }}" class="nav-link"><ion-icon name="person-outline"></ion-icon> Clientes</a></li>
-                <hr />
-                <li class="nav-item"><a href="/productos" class="nav-link"><ion-icon name="briefcase-outline"></ion-icon> Inventario</a></li>
-                <hr />
-                <li class="nav-item"><a href="{{ url_for('api_pedidos.pedidos') }}" class="nav-link"><ion-icon name="cube-outline"></ion-icon> Pedidos</a></li>
-                <hr />
-                {% if session.get('usuario_rol') in ['admin'] %}
-                <li class="nav-item"><a href="{{ url_for('prediccion') }}" class="nav-link"><ion-icon name="bar-chart-outline"></ion-icon> Predicción</a></li>
-                <hr />
-                {% endif %}
-                <li class="nav-item"><a href="{{ url_for('reportes') }}" class="nav-link"><ion-icon name="document-text-outline"></ion-icon> Reportes</a></li>
-                <hr />
-                <li class="nav-item"><a href="{{ url_for('ventas') }}" class="nav-link"><ion-icon name="cart-outline"></ion-icon> Ventas</a></li>
-                <hr />
-                <li class="nav-item"><a href="{{ url_for('notificaciones') }}" class="nav-link"><ion-icon name="notifications"></ion-icon> Notificaciones</a></li>
-                <hr />
-                <li class="nav-item"><a href="{{ url_for('reportes') }}" class="nav-link"><ion-icon name="document-text-outline"></ion-icon> Reportes</a></li>
-                <hr />
-                <li class="nav-item"><a href="{{ url_for('api_login.logout') }}" class="nav-link text-danger"><ion-icon name="log-out-outline"></ion-icon> Cerrar sesión</a></li>
-            </ul>
+    <!-- Sidebar para desktop -->
+    <aside id="sidebar" class="bg-light border-end p-3" style="width: 250px;">
+        <div class="mb-3">
+            <h5 class="text-primary">JEAN DAIBEN</h5>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a href="{{ url_for('inicio') }}" class="nav-link"><ion-icon name="home-outline"></ion-icon> Home</a></li>
             <hr />
-            <!-- Switch de modo oscuro -->
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    <ion-icon name="moon"></ion-icon>
-                    <span class="ms-2">Dark Mode</span>
-                </div>
-                <div id="switchModoOscuro" class="switch"></div>
+            <li class="nav-item"><a href="{{ url_for('dashboard_ventas') }}" class="nav-link"><ion-icon name="clipboard-outline"></ion-icon> Dashboard</a></li>
+            <hr />
+            <li class="nav-item"><a href="{{ url_for('agregar_cliente') }}" class="nav-link"><ion-icon name="person-outline"></ion-icon> Clientes</a></li>
+            <hr />
+            <li class="nav-item"><a href="/productos" class="nav-link"><ion-icon name="briefcase-outline"></ion-icon> Inventario</a></li>
+            <hr />
+            <li class="nav-item"><a href="{{ url_for('api_pedidos.pedidos') }}" class="nav-link"><ion-icon name="cube-outline"></ion-icon> Pedidos</a></li>
+            <hr />
+            {% if session.get('usuario_rol') in ['admin'] %}
+            <li class="nav-item"><a href="{{ url_for('prediccion') }}" class="nav-link"><ion-icon name="bar-chart-outline"></ion-icon> Predicción</a></li>
+            <hr />
+            {% endif %}
+            <li class="nav-item"><a href="{{ url_for('reportes') }}" class="nav-link"><ion-icon name="document-text-outline"></ion-icon> Reportes</a></li>
+            <hr />
+            <li class="nav-item"><a href="{{ url_for('ventas') }}" class="nav-link"><ion-icon name="cart-outline"></ion-icon> Ventas</a></li>
+            <hr />
+            <li class="nav-item"><a href="{{ url_for('notificaciones') }}" class="nav-link"><ion-icon name="notifications"></ion-icon> Notificaciones</a></li>
+            <hr />
+            <li class="nav-item"><a href="{{ url_for('api_login.logout') }}" class="nav-link text-danger"><ion-icon name="log-out-outline"></ion-icon> Cerrar sesión</a></li>
+        </ul>
+        <hr />
+        <!-- Switch de modo oscuro -->
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <ion-icon name="moon"></ion-icon>
+                <span class="ms-2">Dark Mode</span>
             </div>
-        </aside>
+            <div id="switchModoOscuro" class="switch"></div>
+        </div>
+    </aside>
 
-        <!-- Contenido principal -->
-        <main class="flex-grow-1">
-            <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-                <div class="position-absolute top-0 end-0 p-2" style="z-index: 1050;">
-                    <div class="position-relative">
-                        <button type="button" class="btn btn-light" id="notificacionesBtn" data-bs-toggle="popover" title="Alertas de Stock Bajo" data-bs-html="true" data-bs-content="Cargando...">
-                            🔔
-                            <span id="badgeCantidad" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="container">
-                    <a class="navbar-brand" href="/">JEAN DAIBEN</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                        <span class="navbar-toggler-icon"></span>
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+            <div class="container-fluid">
+                <!-- Botón de menú para móviles -->
+                <button class="btn btn-outline-light mobile-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+                    <ion-icon name="menu-outline"></ion-icon>
+                </button>
+                
+                <a class="navbar-brand" href="/">JEAN DAIBEN</a>
+                
+                <!-- Botón de notificaciones -->
+                <div class="notification-container">
+                    <button type="button" class="btn btn-light" id="notificacionesBtn" data-bs-toggle="popover" title="Alertas de Stock Bajo" data-bs-html="true" data-bs-content="Cargando...">
+                        🔔
+                        <span id="badgeCantidad" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
                     </button>
                 </div>
-            </nav>
-
-            <div class="container">
-                {% block content %}{% endblock %}
             </div>
+        </nav>
 
-            <footer class="mt-5 py-3 text-center bg-light text-dark" id="footer">
-                <div class="container">
-                    <p>© 2025 Jean Daiben - Sistema de Inventario</p>
+        <div class="container-fluid px-3">
+            {% block content %}
+            <!-- Contenido principal centrado -->
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">Bienvenido al Sistema de Gestión Jean Daiben</h2>
+            </div>
+            
+            <div class="row justify-content-center g-4">
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <ion-icon name="people-outline" style="font-size: 3rem; color: #0d6efd;"></ion-icon>
+                            </div>
+                            <h5 class="card-title fw-bold mb-3">Clientes</h5>
+                            <p class="card-text text-muted mb-4">Agregar y gestionar clientes del sistema.</p>
+                            <a href="{{ url_for('agregar_cliente') }}" class="btn btn-outline-primary">Gestionar Clientes</a>
+                        </div>
+                    </div>
                 </div>
-            </footer>
-        </main>
+                
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <ion-icon name="clipboard-outline" style="font-size: 3rem; color: #198754;"></ion-icon>
+                            </div>
+                            <h5 class="card-title fw-bold mb-3">Dashboard</h5>
+                            <p class="card-text text-muted mb-4">Estadísticas y gráficos del sistema.</p>
+                            <a href="{{ url_for('dashboard_ventas') }}" class="btn btn-outline-success">Ver Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <ion-icon name="briefcase-outline" style="font-size: 3rem; color: #fd7e14;"></ion-icon>
+                            </div>
+                            <h5 class="card-title fw-bold mb-3">Inventario</h5>
+                            <p class="card-text text-muted mb-4">Gestión de productos e inventario.</p>
+                            <a href="/productos" class="btn btn-outline-warning">Ir a Inventario</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <ion-icon name="cube-outline" style="font-size: 3rem; color: #6f42c1;"></ion-icon>
+                            </div>
+                            <h5 class="card-title fw-bold mb-3">Pedidos</h5>
+                            <p class="card-text text-muted mb-4">Gestión de pedidos del sistema.</p>
+                            <a href="{{ url_for('api_pedidos.pedidos') }}" class="btn btn-outline-purple" style="border-color: #6f42c1; color: #6f42c1;">Ir a Pedidos</a>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if session.get('usuario_rol') in ['admin'] %}
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <ion-icon name="bar-chart-outline" style="font-size: 3rem; color: #dc3545;"></ion-icon>
+                            </div>
+                            <h5 class="card-title fw-bold mb-3">Predicción</h5>
+                            <p class="card-text text-muted mb-4">Análisis y predicción de datos.</p>
+                            <a href="{{ url_for('prediccion') }}" class="btn btn-outline-danger">Ver Predicción</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <ion-icon name="document-text-outline" style="font-size: 3rem; color: #20c997;"></ion-icon>
+                            </div>
+                            <h5 class="card-title fw-bold mb-3">Reportes</h5>
+                            <p class="card-text text-muted mb-4">Visualiza las estadísticas de ventas realizadas.</p>
+                            <a href="{{ url_for('reportes') }}" class="btn btn-outline-info">Descargar Reportes</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <ion-icon name="cart-outline" style="font-size: 3rem; color: #e83e8c;"></ion-icon>
+                            </div>
+                            <h5 class="card-title fw-bold mb-3">Ventas</h5>
+                            <p class="card-text text-muted mb-4">Registro y seguimiento de ventas.</p>
+                            <a href="{{ url_for('ventas') }}" class="btn btn-outline-pink" style="border-color: #e83e8c; color: #e83e8c;">Registro Ventas</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <ion-icon name="notifications-outline" style="font-size: 3rem; color: #ffc107;"></ion-icon>
+                            </div>
+                            <h5 class="card-title fw-bold mb-3">Notificaciones</h5>
+                            <p class="card-text text-muted mb-4">Consulta el inventario y niveles actuales de stock.</p>
+                            <a href="{{ url_for('notificaciones') }}" class="btn btn-outline-warning">Ver Notificaciones</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+
+        <footer class="mt-5 py-3 text-center bg-light text-dark" id="footer">
+            <div class="container">
+                <p>© 2025 Jean Daiben - Sistema de Inventario</p>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Menú móvil (Offcanvas) -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="mobileMenuLabel">JEAN DAIBEN</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <ul class="nav flex-column offcanvas-nav">
+                <li class="nav-item"><a href="{{ url_for('inicio') }}" class="nav-link"><ion-icon name="home-outline"></ion-icon> Home</a></li>
+                <li class="nav-item"><a href="{{ url_for('dashboard_ventas') }}" class="nav-link"><ion-icon name="clipboard-outline"></ion-icon> Dashboard</a></li>
+                <li class="nav-item"><a href="{{ url_for('agregar_cliente') }}" class="nav-link"><ion-icon name="person-outline"></ion-icon> Clientes</a></li>
+                <li class="nav-item"><a href="/productos" class="nav-link"><ion-icon name="briefcase-outline"></ion-icon> Inventario</a></li>
+                <li class="nav-item"><a href="{{ url_for('api_pedidos.pedidos') }}" class="nav-link"><ion-icon name="cube-outline"></ion-icon> Pedidos</a></li>
+                {% if session.get('usuario_rol') in ['admin'] %}
+                <li class="nav-item"><a href="{{ url_for('prediccion') }}" class="nav-link"><ion-icon name="bar-chart-outline"></ion-icon> Predicción</a></li>
+                {% endif %}
+                <li class="nav-item"><a href="{{ url_for('reportes') }}" class="nav-link"><ion-icon name="document-text-outline"></ion-icon> Reportes</a></li>
+                <li class="nav-item"><a href="{{ url_for('ventas') }}" class="nav-link"><ion-icon name="cart-outline"></ion-icon> Ventas</a></li>
+                <li class="nav-item"><a href="{{ url_for('notificaciones') }}" class="nav-link"><ion-icon name="notifications"></ion-icon> Notificaciones</a></li>
+                <li class="nav-item"><a href="{{ url_for('api_login.logout') }}" class="nav-link text-danger"><ion-icon name="log-out-outline"></ion-icon> Cerrar sesión</a></li>
+            </ul>
+            
+            <!-- Switch de modo oscuro para móvil -->
+            <div class="p-3 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <ion-icon name="moon"></ion-icon>
+                        <span class="ms-2">Dark Mode</span>
+                    </div>
+                    <div id="switchModoOscuroMobile" class="switch"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     {% block scripts %}{% endblock %}
@@ -167,26 +441,50 @@
                     }
 
                     new bootstrap.Popover(btn);
+                })
+                .catch(error => {
+                    console.error('Error al cargar notificaciones:', error);
                 });
 
-            // Modo Oscuro
-            const switchBtn = document.getElementById('switchModoOscuro');
+            // Modo Oscuro - Sincronizar ambos switches
+            const switchDesktop = document.getElementById('switchModoOscuro');
+            const switchMobile = document.getElementById('switchModoOscuroMobile');
             const body = document.body;
 
+            // Cargar estado guardado
             if (localStorage.getItem('modoOscuro') === 'true') {
                 activarModoOscuro();
             }
 
-            switchBtn.addEventListener('click', () => {
+            // Event listeners para ambos switches
+            function toggleModoOscuro() {
                 body.classList.toggle('modo-oscuro');
-                switchBtn.classList.toggle('activo');
-                localStorage.setItem('modoOscuro', body.classList.contains('modo-oscuro'));
-            });
+                const esOscuro = body.classList.contains('modo-oscuro');
+                
+                switchDesktop.classList.toggle('activo', esOscuro);
+                switchMobile.classList.toggle('activo', esOscuro);
+                
+                localStorage.setItem('modoOscuro', esOscuro);
+            }
+
+            switchDesktop.addEventListener('click', toggleModoOscuro);
+            switchMobile.addEventListener('click', toggleModoOscuro);
 
             function activarModoOscuro() {
                 body.classList.add('modo-oscuro');
-                switchBtn.classList.add('activo');
+                switchDesktop.classList.add('activo');
+                switchMobile.classList.add('activo');
             }
+
+            // Cerrar offcanvas al hacer click en un enlace
+            const offcanvasElement = document.getElementById('mobileMenu');
+            const offcanvas = new bootstrap.Offcanvas(offcanvasElement);
+            
+            document.querySelectorAll('#mobileMenu .nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    offcanvas.hide();
+                });
+            });
         });
     </script>
 </body>

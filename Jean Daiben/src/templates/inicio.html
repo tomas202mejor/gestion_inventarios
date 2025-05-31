@@ -462,6 +462,37 @@
                 body.classList.add('modo-oscuro');
                 switchBtn.classList.add('activo');
             }
+
+            // Toggle Sidebar
+            const toggleSidebarBtn = document.getElementById('toggleSidebar');
+            const sidebar = document.getElementById('sidebar');
+            const main = document.getElementById('main');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            toggleSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                main.classList.toggle('expanded');
+                toggleSidebarBtn.classList.toggle('collapsed');
+                
+                // Cambiar la dirección del icono
+                if (sidebar.classList.contains('collapsed')) {
+                    toggleIcon.textContent = '▶';
+                } else {
+                    toggleIcon.textContent = '◀';
+                }
+                
+                // Guardar el estado en localStorage
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            });
+
+            // Verificar el estado guardado de la sidebar
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+                main.classList.add('expanded');
+                toggleSidebarBtn.classList.add('collapsed');
+                toggleIcon.textContent = '▶';
+            }
         });
     </script>
-</body
+</body>
+</html>

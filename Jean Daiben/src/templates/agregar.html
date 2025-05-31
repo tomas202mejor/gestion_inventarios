@@ -11,30 +11,50 @@
                 <h4 class="mb-0">Agregar Nuevo Producto</h4>
             </div>
             <div class="card-body">
+                <!-- Área para mostrar mensajes de error o éxito -->
+                <div id="messageArea" style="display: none;" class="alert mb-3">
+                    <span id="messageText"></span>
+                </div>
+                
                 <form id="productoForm">
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre del Producto*</label>
-                        <input type="text" class="form-control" id="nombre" required>
+                        <input type="text" class="form-control" id="nombre" required maxlength="100">
+                        <div class="invalid-feedback">
+                            El nombre del producto es obligatorio.
+                        </div>
                     </div>
                     
                     <div class="mb-3">
                         <label for="cantidad" class="form-label">Cantidad*</label>
                         <input type="number" class="form-control" id="cantidad" min="0" required>
+                        <div class="invalid-feedback">
+                            La cantidad debe ser un número mayor o igual a 0.
+                        </div>
                     </div>
                     
                     <div class="mb-3">
                         <label for="tipo" class="form-label">Tipo</label>
-                        <input type="text" class="form-control" id="tipo">
+                        <input type="text" class="form-control" id="tipo" maxlength="50">
                     </div>
                     
                     <div class="mb-3">
                         <label for="proveedor" class="form-label">Proveedor</label>
-                        <input type="text" class="form-control" id="proveedor">
+                        <input type="text" class="form-control" id="proveedor" maxlength="100">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="precio_venta" class="form-label">Precio de Venta</label>
+                        <input type="number" class="form-control" id="precio_venta" min="0" step="0.01" placeholder="0.00">
+                        <div class="form-text">Opcional - Deje en blanco si no aplica</div>
                     </div>
                     
                     <div class="d-flex justify-content-between">
                         <button type="button" class="btn btn-secondary" onclick="window.location.href='/productos'">Cancelar</button>
-                        <button type="submit" class="btn btn-success">Guardar Producto</button>
+                        <button type="submit" class="btn btn-success" id="submitBtn">
+                            <span id="submitText">Guardar Producto</span>
+                            <span id="submitSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -47,32 +67,138 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const productoForm = document.getElementById('productoForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const submitSpinner = document.getElementById('submitSpinner');
+        const messageArea = document.getElementById('messageArea');
+        const messageText = document.getElementById('messageText');
+        
+        // Función para mostrar mensajes
+        function showMessage(message, type = 'danger') {
+            messageArea.className = `alert mb-3 alert-${type}`;
+            messageText.textContent = message;
+            messageArea.style.display = 'block';
+            messageArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Función para ocultar mensajes
+        function hideMessage() {
+            messageArea.style.display = 'none';
+        }
+        
+        // Función para mostrar/ocultar loading
+        function setLoading(loading) {
+            if (loading) {
+                submitBtn.disabled = true;
+                submitText.textContent = 'Guardando...';
+                submitSpinner.style.display = 'inline-block';
+            } else {
+                submitBtn.disabled = false;
+                submitText.textContent = 'Guardar Producto';
+                submitSpinner.style.display = 'none';
+            }
+        }
+        
+        // Validación en tiempo real
+        const nombreInput = document.getElementById('nombre');
+        const cantidadInput = document.getElementById('cantidad');
+        
+        nombreInput.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
+        
+        cantidadInput.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            if (!isNaN(value) && value >= 0) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
         
         productoForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            hideMessage();
             
-            const producto = {
-                nombre: document.getElementById('nombre').value.trim(),
-                cantidad: parseInt(document.getElementById('cantidad').value),
-                tipo: document.getElementById('tipo').value.trim() || null,
-                proveedor: document.getElementById('proveedor').value.trim() || null
-            };
+            // Validación del formulario
+            const nombre = document.getElementById('nombre').value.trim();
+            const cantidad = document.getElementById('cantidad').value;
+            const tipo = document.getElementById('tipo').value.trim();
+            const proveedor = document.getElementById('proveedor').value.trim();
+            const precioVenta = document.getElementById('precio_venta').value;
             
-            // Validación básica
-            if (!producto.nombre || isNaN(producto.cantidad)) {
-                alert('Por favor complete los campos obligatorios correctamente');
+            // Validaciones básicas
+            if (!nombre) {
+                showMessage('El nombre del producto es obligatorio', 'danger');
+                document.getElementById('nombre').focus();
                 return;
             }
             
-            axios.post('/api/productos', producto)
-                .then(response => {
-                    alert('Producto agregado correctamente');
+            if (!cantidad || isNaN(parseInt(cantidad)) || parseInt(cantidad) < 0) {
+                showMessage('La cantidad debe ser un número válido mayor o igual a 0', 'danger');
+                document.getElementById('cantidad').focus();
+                return;
+            }
+            
+            // Preparar datos del producto
+            const producto = {
+                nombre: nombre,
+                cantidad: parseInt(cantidad),
+                tipo: tipo || null,
+                proveedor: proveedor || null,
+                precio_venta: precioVenta ? parseFloat(precioVenta) : 0
+            };
+            
+            console.log('Enviando producto:', producto);
+            
+            // Mostrar loading
+            setLoading(true);
+            
+            // Enviar solicitud
+            axios.post('/api/productos', producto, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                console.log('Respuesta exitosa:', response.data);
+                showMessage('Producto agregado correctamente', 'success');
+                
+                // Redirigir después de un breve delay
+                setTimeout(() => {
                     window.location.href = '/productos';
-                })
-                .catch(error => {
-                    console.error('Error al agregar producto:', error);
-                    alert('Error al agregar el producto');
-                });
+                }, 1500);
+            })
+            .catch(error => {
+                console.error('Error completo:', error);
+                setLoading(false);
+                
+                let errorMessage = 'Error al agregar el producto';
+                
+                if (error.response) {
+                    // El servidor respondió con un código de error
+                    console.error('Error response:', error.response.data);
+                    errorMessage = error.response.data.error || `Error del servidor (${error.response.status})`;
+                } else if (error.request) {
+                    // La solicitud se hizo pero no hubo respuesta
+                    console.error('No response:', error.request);
+                    errorMessage = 'No se pudo conectar con el servidor';
+                } else {
+                    // Error en la configuración de la solicitud
+                    console.error('Error config:', error.message);
+                    errorMessage = error.message;
+                }
+                
+                showMessage(errorMessage, 'danger');
+            });
         });
     });
 </script>

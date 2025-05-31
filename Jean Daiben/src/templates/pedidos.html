@@ -126,7 +126,9 @@ function agregarProducto() {
     const nuevoItem = productoItem.cloneNode(true);
 
     // Limpiar valores
-    nuevoItem.querySelector('.filtro-producto').value = '';
+    if (nuevoItem.querySelector('.filtro-producto')) {
+        nuevoItem.querySelector('.filtro-producto').value = '';
+    }
     const select = nuevoItem.querySelector('.producto-select');
     select.value = "";
 
@@ -136,7 +138,7 @@ function agregarProducto() {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Cargar clientes
+    // Cargar clientes - RUTA GLOBAL
     fetch('/api/clientes')
         .then(response => response.json())
         .then(data => {
@@ -149,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-    // Cargar productos
+    // Cargar productos - RUTA GLOBAL
     fetch('/api/productos')
         .then(response => response.json())
         .then(data => {
@@ -165,6 +167,3 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 {% endblock %}
-
-
-

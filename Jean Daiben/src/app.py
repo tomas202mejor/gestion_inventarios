@@ -4,7 +4,6 @@ from flask_jwt_extended import JWTManager
 import pymysql
 import os
 
-# Importar blueprints
 from routes.api_productos import api_productos
 from routes.api_notificaciones import api_notificaciones
 from routes.api_ventas import api_ventas
@@ -24,7 +23,6 @@ app.config['JWT_SECRET_KEY'] = 'tu_clave_secreta_jwt_segura'  # Clave para JWT
 CORS(app)
 jwt = JWTManager(app)
 
-# Registrar Blueprints
 app.register_blueprint(api_productos)
 app.register_blueprint(api_pedidos)
 app.register_blueprint(api_notificaciones)
@@ -33,29 +31,24 @@ app.register_blueprint(api_notifi_guardadas)
 app.register_blueprint(api_ventas)
 app.register_blueprint(api_dashboard)
 app.register_blueprint(api_prediccion)
-app.register_blueprint(api_clientes)
+app.register_blueprint(api_clientes) 
 app.register_blueprint(api_reportes)
-# api_login con prefijo /api para separar rutas API y rutas frontend
 app.register_blueprint(api_login, url_prefix='/api')
 
-# Rutas frontend / páginas con protección de sesión
 @app.route('/')
 def index():
-    # Redirige a inicio si hay sesión, sino a login
     if 'usuario_id' in session:
         return redirect(url_for('inicio'))
     return redirect(url_for('login'))
 
 @app.route('/login')
 def login():
-    # Muestra el formulario login solo si no hay sesión activa
     if 'usuario_id' in session:
         return redirect(url_for('inicio'))
     return render_template('index.html')
 
 @app.route('/inicio')
 def inicio():
-    # Página principal protegida por sesión
     if 'usuario_id' not in session:
         return redirect(url_for('login'))
     usuario_id = session['usuario_id']
@@ -139,7 +132,6 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# API Reportes
 @app.route('/api/reportes/<tipo>')
 def api_reportes(tipo):
     if tipo == 'ventas':

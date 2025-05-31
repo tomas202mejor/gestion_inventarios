@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, redirect
 from db_config import get_db_connection as get_connection
-from flask import jsonify  # Asegúrate de importar esto
-
+from flask import jsonify
 
 api_pedidos = Blueprint('api_pedidos', __name__)
 
@@ -57,33 +56,16 @@ def pedidos():
     pedidos = cursor.fetchall()
     conn.close()
     
-
     return render_template('pedidos.html', pedidos=pedidos)
 
+# ELIMINAR ESTAS RUTAS DE AQUÍ - CONFLICTO CON api_clientes.py
+# @api_pedidos.route('/api/clientes')
+# def api_clientes():
+#     pass
 
-
-@api_pedidos.route('/api/clientes')
-def api_clientes():
-    filtro = request.args.get('filtro', '')
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT ClienteID, Nombre FROM Clientes WHERE Nombre LIKE %s", ('%' + filtro + '%',))
-    clientes = [{'id': row[0], 'nombre': row[1]} for row in cursor.fetchall()]
-    conn.close()
-    return jsonify(clientes)  # <--- SOLUCIÓN AQUÍ
-
-@api_pedidos.route('/api/productos')
-def api_productos():
-    from flask import jsonify  # Asegúrate de importar esto al inicio
-    filtro = request.args.get('filtro', '')
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT ProductoID, Nombre FROM Productos WHERE Nombre LIKE %s", ('%' + filtro + '%',))
-    productos = [{'id': row[0], 'nombre': row[1]} for row in cursor.fetchall()]
-    conn.close()
-    return jsonify(productos)  # ← IMPORTANTE: debe ser jsonify()
-
-
+# @api_pedidos.route('/api/productos') 
+# def api_productos():
+#     pass
 
 @api_pedidos.route('/editar_pedido/<int:pedido_id>', methods=['GET', 'POST'])
 def editar_pedido(pedido_id):
@@ -155,10 +137,6 @@ def editar_pedido(pedido_id):
     conn.close()
     return render_template('editar_pedido.html', pedido=pedido, clientes=clientes, productos=productos)
 
-
-
-
-
 @api_pedidos.route('/cancelar_pedido/<int:pedido_id>', methods=['POST'])
 def cancelar_pedido(pedido_id):
     conn = get_connection()
@@ -170,7 +148,6 @@ def cancelar_pedido(pedido_id):
     conn.commit()
     conn.close()
     return redirect('/pedidos')
-
 
 @api_pedidos.route('/eliminar_pedido/<int:pedido_id>', methods=['POST'])
 def eliminar_pedido(pedido_id):
